@@ -1,0 +1,33 @@
+{
+  "name": "roadwaybackend",
+  "version": "1.0.0",
+  "description": "major project for cab boking",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js"
+  },
+  "keywords": [
+    "saujanya"
+  ],
+  "author": "saujanya magarde",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.8.3",
+    "bcrypt": "^5.1.1",
+    "cloudinary": "^2.6.0",
+    "cookie-parser": "^1.4.7",
+    "cookies": "^0.9.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.14.2",
+    "mongoose": "^8.12.1",
+    "mongoose-paginate-v2": "^1.9.0",
+    "multer": "^1.4.5-lts.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
