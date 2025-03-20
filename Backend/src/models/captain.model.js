@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
 const captainSchema = new Schema({
-    fullname: { 
+    fullname: {
         firstname :{
             type : String,
             required : true,
