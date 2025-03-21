@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from "react"; 
+import React, { useState } from "react"; 
 import { Link } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
+import axios from 'axios';
 
 const CaptainSignup = () => {
     const [formData, setFormData] = useState({
@@ -8,11 +10,13 @@ const CaptainSignup = () => {
         email: "",
         mobile_no: "",
         password: "",
-        vehicleColor: "",
-        vehiclePlate: "",
-        vehicleCapacity: "",
+        color: "",
+        plate: "",
+        capacity: "",
         vehicleType: "car",
     });
+
+    const navigate = useNavigate();
 
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -23,8 +27,8 @@ const CaptainSignup = () => {
     };
     
     const validatePassword = (password) => {
-        // At least 8 characters, 1 uppercase, 1 lowercase, 1 number
-        const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+        // Password validation: at least 8 characters with 1 uppercase, 1 lowercase, and 1 number
+        const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
         return regex.test(password);
     };
     
@@ -73,32 +77,47 @@ const CaptainSignup = () => {
         }
         
         // Vehicle details validation
-        if (!formData.vehicleColor.trim()) newErrors.vehicleColor = "Vehicle color is required";
-        if (!formData.vehiclePlate.trim()) newErrors.vehiclePlate = "Vehicle plate is required";
-        if (!formData.vehicleCapacity) newErrors.vehicleCapacity = "Vehicle capacity is required";
+        if (!formData.color.trim()) newErrors.color = "Vehicle color is required";
+        if (!formData.plate.trim()) newErrors.plate = "Vehicle plate is required";
+        if (!formData.capacity) newErrors.capacity = "Vehicle capacity is required";
         
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
     
-    const handleSubmit = (e) => {
+    const handleSubmit = async(e) => {
         e.preventDefault();
         setIsSubmitting(true);
         
         const isValid = validateForm();
         
         if (isValid) {
-            console.log("Form data is valid:", formData);
-            // Submit form data to API here
-            // For example: submitToAPI(formData);
-            
-            // Reset form after successful submission if needed
-            // setFormData({ firstname: "", lastname: "", ... });
+            try {
+                const res = await axios.post(import.meta.env.VITE_CAPTAIN_SIGNUP, formData, {
+                    withCredentials: true,  // Allow sending cookies
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                console.log(res);
+
+                if(res.status === 200 || res.status === 201) {
+                    console.log(res.data);
+                    navigate('/captain-login');
+                } else {
+                    alert("Something went wrong");
+                }
+            } catch (error) {
+                console.error("Error during signup:", error);
+                alert(error.response?.data?.message || "Failed to sign up. Please try again.");
+            } finally {
+                setIsSubmitting(false);
+            }
         } else {
             console.log("Form has errors:", errors);
+            setIsSubmitting(false);
         }
-        
-        setIsSubmitting(false);
     };
     
     return (
@@ -214,58 +233,58 @@ const CaptainSignup = () => {
                             
                             <div className="space-y-4">
                                 <div>
-                                    <label htmlFor="vehicleColor" className="block text-sm font-medium mb-1">Vehicle Color</label>
+                                    <label htmlFor="color" className="block text-sm font-medium mb-1">Vehicle Color</label>
                                     <input 
                                         type="text" 
-                                        id="vehicleColor"
-                                        name="vehicleColor" 
-                                        placeholder="Vehicle Color" 
-                                        value={formData.vehicleColor} 
+                                        id="color"
+                                        name="color" 
+                                        placeholder="Vehicle color" 
+                                        value={formData.color} 
                                         onChange={handleChange} 
                                         className={`w-full px-4 py-2 bg-gray-700 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                                            errors.vehicleColor ? "border-red-500" : "border-gray-600"
+                                            errors.color ? "border-red-500" : "border-gray-600"
                                         }`}
                                     />
-                                    {errors.vehicleColor && (
-                                        <p className="mt-1 text-sm text-red-500">{errors.vehicleColor}</p>
+                                    {errors.color && (
+                                        <p className="mt-1 text-sm text-red-500">{errors.color}</p>
                                     )}
                                 </div>
                                 
                                 <div>
-                                    <label htmlFor="vehiclePlate" className="block text-sm font-medium mb-1">Vehicle Plate</label>
+                                    <label htmlFor="plate" className="block text-sm font-medium mb-1">Vehicle Plate</label>
                                     <input 
                                         type="text" 
-                                        id="vehiclePlate"
-                                        name="vehiclePlate" 
-                                        placeholder="Vehicle Plate" 
-                                        value={formData.vehiclePlate} 
+                                        id="plate"
+                                        name="plate" 
+                                        placeholder="Vehicle plate" 
+                                        value={formData.plate} 
                                         onChange={handleChange} 
                                         className={`w-full px-4 py-2 bg-gray-700 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                                            errors.vehiclePlate ? "border-red-500" : "border-gray-600"
+                                            errors.plate ? "border-red-500" : "border-gray-600"
                                         }`}
                                     />
-                                    {errors.vehiclePlate && (
-                                        <p className="mt-1 text-sm text-red-500">{errors.vehiclePlate}</p>
+                                    {errors.plate && (
+                                        <p className="mt-1 text-sm text-red-500">{errors.plate}</p>
                                     )}
                                 </div>
                                 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label htmlFor="vehicleCapacity" className="block text-sm font-medium mb-1">Capacity</label>
+                                        <label htmlFor="capacity" className="block text-sm font-medium mb-1">Capacity</label>
                                         <input 
                                             type="number" 
-                                            id="vehicleCapacity"
-                                            name="vehicleCapacity" 
-                                            placeholder="Capacity" 
-                                            value={formData.vehicleCapacity} 
+                                            id="capacity"
+                                            name="capacity" 
+                                            placeholder="capacity" 
+                                            value={formData.capacity} 
                                             onChange={handleChange} 
                                             min="1" 
                                             className={`w-full px-4 py-2 bg-gray-700 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                                                errors.vehicleCapacity ? "border-red-500" : "border-gray-600"
+                                                errors.capacity ? "border-red-500" : "border-gray-600"
                                             }`}
                                         />
-                                        {errors.vehicleCapacity && (
-                                            <p className="mt-1 text-sm text-red-500">{errors.vehicleCapacity}</p>
+                                        {errors.capacity && (
+                                            <p className="mt-1 text-sm text-red-500">{errors.capacity}</p>
                                         )}
                                     </div>
                                     
@@ -317,7 +336,7 @@ const CaptainSignup = () => {
                     <div className="text-center mt-4">
                         <p className="text-gray-400">
                             Already have an account?{" "}
-                            <Link to="/login" className="text-blue-400 hover:underline">
+                            <Link to="/captain-login" className="text-blue-400 hover:underline">
                                 Login here
                             </Link>
                         </p>

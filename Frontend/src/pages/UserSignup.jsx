@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-
+import { Link , useNavigate} from 'react-router-dom';
+import axios from 'axios';
 function UserSignup() {
   const [firstname, setFirstname] = useState('');
   const [lastname, setLastname] = useState('');
@@ -8,8 +8,8 @@ function UserSignup() {
   const [mobile, setMobile] = useState('');
   const [password, setPassword] = useState('');
   const [avatar, setAvatar] = useState(null);
-  const [formdata, setFormdata] = useState({});
   const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
 
   const validateForm = () => {
     let newErrors = {};
@@ -42,24 +42,34 @@ function UserSignup() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (validateForm()) {
-      const userData = {
-        fullname: {
-          firstname: firstname,
-          lastname: lastname,
-        },
-        email: email,
-        mobile_no: mobile,
-        password: password,
-        avatar: avatar,
-      };
-
-      setFormdata(userData);
-      console.log("User Data Submitted:", userData);
-      alert("Signup Successful!");
+      const formData = new FormData(); // Use FormData for file upload
+      formData.append('firstname', firstname);
+      formData.append('lastname', lastname);
+      formData.append('email', email);
+      formData.append('mobile_no', mobile);
+      formData.append('password', password);
+      formData.append('avatar', avatar); // File upload
+  
+      try {
+        const res = await axios.post(import.meta.env.VITE_USER_SIGNUP, formData, {
+          withCredentials: true,  // ✅ Allow sending cookies
+          headers: {
+            'Content-Type': 'multipart/form-data', // ✅ Required for file uploads
+          },
+        });
+  
+        console.log(res);
+        if (res.status === 201) {
+          alert('Signup Successful!');
+          navigate('/user-login'); // Redirect after successful signup
+        }
+      } catch (error) {
+        alert('Signup failed, please try again.');
+      }
     }
   };
 

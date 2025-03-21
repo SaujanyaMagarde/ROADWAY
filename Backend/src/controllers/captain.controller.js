@@ -10,7 +10,7 @@ const registerCaptain = asyncHandler(async (req, res) => {
 
     // Validate required fields
     if (![firstname, lastname, email, password, mobile_no, color, plate, capacity, vehicleType].every(field => field && field.toString().trim())) {
-        throw new ApiError(400, "All fields are required");
+        throw new ApiError(400, "All fields are required please require 1");
     }
 
     if (firstname.trim().length < 3 || lastname.trim().length < 3) {

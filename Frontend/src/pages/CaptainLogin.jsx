@@ -1,17 +1,36 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-
+import axios from 'axios';
+import {login} from '../Store/Authslice.jsx';
+import { useSelector,useDispatch } from 'react-redux';
 function CaptainLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [captainData, setCaptainData] = useState({});
-
-  const submitHandler = (e) => {
+  const dispatch = useDispatch();
+  const submitHandler = async(e) => {
     e.preventDefault();
-    setCaptainData({
+    const CaptainData = {
       email: email,
       password: password,
-    });
+    };
+    try {
+      const res = await axios.post(import.meta.env.VITE_CAPTAIN_LOGIN,CaptainData,{
+        withCredentials: true, // ✅ Allow sending cookies
+          headers: {
+            "Content-Type": "application/json", // ✅ JSON format
+          },
+      })
+      const captain_data = res.data.data.Captain
+      console.log(captain_data)
+      dispatch(login(captain_data))
+    } catch (error) {
+      console.log(error);
+      alert('something went wrong')
+    }
+
+
+
+
     setEmail('');
     setPassword('');
   };
