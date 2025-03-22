@@ -3,13 +3,13 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { login } from "../Store/Authslice.jsx";
 import { useSelector, useDispatch } from "react-redux";
-
+import { useNavigate } from "react-router-dom";
 function UserLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const dispatch = useDispatch();
-
+  const navigate = useNavigate();
   const submitHandler = async (e) => {
     e.preventDefault();
 
@@ -29,6 +29,7 @@ function UserLogin() {
       if (res.status === 200) {
         const data = res.data.data.user;
         dispatch(login(data));
+        navigate('/user-home');
       }
     } catch (error) {
       console.log(error);

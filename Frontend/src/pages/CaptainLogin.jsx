@@ -26,6 +26,7 @@ function CaptainLogin() {
       const captain_data = res.data.data.Captain
       console.log(captain_data)
       dispatch(login(captain_data))
+      navigate("/captain-home");
     } catch (error) {
       console.log(error);
       alert('something went wrong')
