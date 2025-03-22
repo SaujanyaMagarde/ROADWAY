@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import {login} from '../Store/Authslice.jsx';
+import {login} from '../Store/CaptainSlice.jsx';
 import { useSelector,useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 function CaptainLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const submitHandler = async(e) => {
     e.preventDefault();
     const CaptainData = {
@@ -27,10 +30,6 @@ function CaptainLogin() {
       console.log(error);
       alert('something went wrong')
     }
-
-
-
-
     setEmail('');
     setPassword('');
   };

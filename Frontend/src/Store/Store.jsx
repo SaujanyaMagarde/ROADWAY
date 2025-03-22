@@ -4,17 +4,27 @@ import storage from "redux-persist/lib/storage";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import authReducer from "./Authslice.jsx"; 
+import captainauthReducer from "./CaptainSlice.jsx";
 
-const persistConfig = {
+// Separate persist configs for both reducers
+const authPersistConfig = {
   key: "auth",
   storage,
 };
 
-const persistedReducer = persistReducer(persistConfig, authReducer);
+const captainAuthPersistConfig = {
+  key: "captainauth",
+  storage,
+};
+
+// Apply persistReducer to each reducer separately
+const persistedAuthReducer = persistReducer(authPersistConfig, authReducer);
+const persistedCaptainAuthReducer = persistReducer(captainAuthPersistConfig, captainauthReducer);
 
 const store = configureStore({
   reducer: {
-    auth: persistedReducer,
+    auth: persistedAuthReducer,
+    captainauth: persistedCaptainAuthReducer,
   },
 });
 
