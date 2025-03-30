@@ -118,7 +118,7 @@ function Home() {
     }
   },[waitingforDriver])
 
-
+  
   return (
     <div className="h-screen relative"> {/* Fixed className (was 'h-screen' relative) */}
       <img className="w-25 absolute left-5 top-5" src={logo} alt="roadWay" />
@@ -181,9 +181,8 @@ function Home() {
       </div>
 
       <div ref={waitingforDriverRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 ' >
-        <WaitforDriver/>
+        <WaitforDriver setwaitingforDriver={setwaitingforDriver}/>
       </div>
-
     </div>
   );
 }

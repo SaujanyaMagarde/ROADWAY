@@ -1,11 +1,9 @@
-import React, { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
-import { useNavigate, Navigate } from 'react-router-dom'
-import axios from 'axios'
+import React, { useEffect, useState } from 'react';
+import { useNavigate, Navigate } from 'react-router-dom';
+import axios from 'axios';
 
-function CaptainProtectecdWrapper({ children }) {
+function CaptainProtectedWrapper({ children }) {
     const [isAuthenticated, setIsAuthenticated] = useState(null);
-    const navigate = useNavigate();
 
     useEffect(() => {
         const checkUserProfile = async () => {
@@ -13,6 +11,7 @@ function CaptainProtectecdWrapper({ children }) {
                 const response = await axios.get(`${import.meta.env.VITE_CAPTAIN_PROFILE}`, { withCredentials: true });
                 
                 if (response.data.success) {
+                    console.log(response.data.success);
                     setIsAuthenticated(true);
                 } else {
                     setIsAuthenticated(false);
@@ -21,23 +20,22 @@ function CaptainProtectecdWrapper({ children }) {
                 setIsAuthenticated(false);
             }
         };
-
         checkUserProfile();
     }, []);
+
+    useEffect(() => {
+        console.log("Authentication Status:", isAuthenticated);
+    }, [isAuthenticated]);
 
     if (isAuthenticated === null) {
         return <div>Loading...</div>;
     }
 
     if (!isAuthenticated) {
-        return <Navigate to="/captain-login" replace={true} />
+        return <Navigate to="/captain-login" replace />;
     }
 
-    return (
-        <>
-            {children}
-        </>
-    )
+    return <>{children}</>;
 }
 
-export default CaptainProtectecdWrapper
+export default CaptainProtectedWrapper;
