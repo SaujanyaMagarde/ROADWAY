@@ -9,9 +9,13 @@ import DriverSelection from '../components/DriverSelection.jsx';
 import ConfromRide from '../components/ConfromRide.jsx';
 import LookingforDriver from '../components/LookingforDriver.jsx'
 import WaitforDriver from '../components/WaitforDriver.jsx'
+import FormPanel from '../components/FormPanel.jsx';
 function Home() {
-  const [pickup, setPickup] = useState('');
-  const [destination, setDestination] = useState('');
+  const [routedetails, setroutedetails] = useState(null)
+  const [suggestion, setsuggestion] = useState([])
+  const [pickup, setPickup] = useState({});
+  const [destination, setDestination] = useState({});
+  const [type , settype] = useState('');
   const [formPanel, setformPanel] = useState(true);
   const formPanelRef = useRef(null);
   const [panelOpen, setPanelOpen] = useState(false);
@@ -25,10 +29,7 @@ function Home() {
   const [LookingforDriverPanel, setLookingforDriverPanel] = useState(false)
   const [waitingforDriver, setwaitingforDriver] = useState(false)
   const waitingforDriverRef = useRef(null)
-
-  const submitHandler = (e) => {
-    e.preventDefault(); // Fixed method name (was preventdefault)
-  };
+  const [conformDetails, setconformDetails] = useState(null)
   
   useGSAP(() => {
     if (panelOpen) {
@@ -118,6 +119,7 @@ function Home() {
     }
   },[waitingforDriver])
 
+
   
   return (
     <div className="h-screen relative"> {/* Fixed className (was 'h-screen' relative) */}
@@ -125,59 +127,26 @@ function Home() {
       <div className="h-screen w-screen">
         <img className="h-full w-full object-cover" src={home_map} alt="map" /> {/* Added alt tag */}
       </div>
-
       <div 
       className="flex flex-col justify-end h-screen absolute top-0 w-full">
         <div ref={formPanelRef} className="h-[30%] p-5 pb-0 bg-white relative">
-          <h3
-            ref={panelCloseRef}
-            onClick={() => setPanelOpen(false)} // Fixed function call (was setpanelOpen)
-            className="absolute top-2 right-5 text-2xl opacity-0 cursor-pointer" // Added cursor-pointer
-          >
-            <i className="ri-arrow-down-wide-fill"></i>
-          </h3>
-          <h4 className="text-2xl font-bold">Find trip</h4>
-          <form onSubmit={(e) => submitHandler(e)}>
-            <div className="line absolute h-16 w-1 top-[33%] bg-gray-600 left-9 rounded-full"></div>
-            <input
-              className="input-field bg-[#eee] px-12 py-2 text-lg rounded-lg w-full mt-3 mb-3"
-              type="text"
-              value={pickup}
-              onClick={() => setPanelOpen(true)} // Fixed function call (was setpanelOpen)
-              onChange={(e) => setPickup(e.target.value)}
-              placeholder="Add a pickup location"
-            />
-            <input 
-              className="input-field bg-[#eee] px-12 py-2 text-lg rounded-lg w-full mb-3"
-              type="text"
-              value={destination}
-              onClick={() => setPanelOpen(true)} // Fixed function call (was setpanelOpen)
-              onChange={(e) => setDestination(e.target.value)} // Fixed function call (was setdestination)
-              placeholder="Enter your destination"
-            />
-            <button 
-              type="submit" 
-              className="bg-blue-500 text-white py-2 px-4 rounded-lg w-full hover:bg-blue-600 transition-colors"
-            >
-              Find Ride
-            </button>
-          </form>
+          <FormPanel setPanelOpen={setPanelOpen} panelCloseRef={panelCloseRef}  setsuggestion={setsuggestion} settype={settype} destination={destination} pickup={pickup} setDestination={setDestination} setPickup={setPickup} setvehicalPanel={setvehicalPanel} setroutedetails={setroutedetails}/>
         </div>
-        <div ref={panelRef} className="h-0 bg-white overflow-hidden"> {/* Added overflow-hidden */}
-          <SearchPanel setvehicalPanel={setvehicalPanel} vehicalPanel={vehicalPanel}/>
+      <div ref={panelRef} className="h-0 bg-white overflow-hidden"> {/* Added overflow-hidden */}
+          <SearchPanel suggestion={suggestion} type={type} setDestination={setDestination} setPickup={setPickup}/>
         </div>
       </div>
 
       <div ref={vechicalPanelRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 ' >
-        <DriverSelection setvehicalPanel={setvehicalPanel} setconfromRidePanel={setconfromRidePanel} setPanelOpen={setPanelOpen}/>
+        <DriverSelection setvehicalPanel={setvehicalPanel} setconfromRidePanel={setconfromRidePanel} setPanelOpen={setPanelOpen} pickup={pickup} destination={destination} routedetails={routedetails} setconformDetails={setconformDetails}/>
       </div>
 
       <div ref={conformPanelRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 ' >
-        <ConfromRide setconfromRidePanel={setconfromRidePanel} setLookingforDriverPanel={setLookingforDriverPanel}/>
+        <ConfromRide setconfromRidePanel={setconfromRidePanel} setLookingforDriverPanel={setLookingforDriverPanel} conformDetails={conformDetails}/>
       </div>
 
       <div ref={LookingforDriverRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 ' >
-        <LookingforDriver setLookingforDriverPanel={setLookingforDriverPanel} setwaitingforDriver={setwaitingforDriver}  LookingforDriverPanel={LookingforDriverPanel}/>
+        <LookingforDriver setLookingforDriverPanel={setLookingforDriverPanel} setwaitingforDriver={setwaitingforDriver}  LookingforDriverPanel={LookingforDriverPanel}  conformDetails={conformDetails}/>
       </div>
 
       <div ref={waitingforDriverRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 ' >

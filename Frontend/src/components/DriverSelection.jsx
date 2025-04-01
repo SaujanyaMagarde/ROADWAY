@@ -4,7 +4,6 @@ import carImage from "../picture/carlogo-removebg-preview.png";
 import motorImage from "../picture/motorcycle.png";
 import 'remixicon/fonts/remixicon.css';
 
-
 const rideOptions = [
   {
     id: 1,
@@ -12,7 +11,7 @@ const rideOptions = [
     capacity: 4,
     time: "2 mins away • 15:24",
     description: "Affordable, compact rides",
-    price: 193.2,
+    pricePerKm: 10,
     image: carImage,
   },
   {
@@ -21,7 +20,7 @@ const rideOptions = [
     capacity: 1,
     time: "3 mins away • 15:24",
     description: "Affordable motorcycle rides",
-    price: 65.17,
+    pricePerKm: 8,
     image: motorImage,
   },
   {
@@ -30,20 +29,30 @@ const rideOptions = [
     capacity: 3,
     time: "2 mins away • 15:24",
     description: "Affordable auto rides",
-    price: 118.21,
+    pricePerKm: 9,
     image: autoImage,
   },
 ];
 
-function DriverSelection({setvehicalPanel,setconfromRidePanel , setPanelOpen,setformPanel}) {
+function DriverSelection({setvehicalPanel,setconfromRidePanel , setPanelOpen,setformPanel,pickup,destination,routedetails,setconformDetails}) {
   const [selectedId, setSelectedId] = useState(null);
-  const handleSelect = (id) => {
+  const ride = rideOptions
+  const handleSelect = (vehicle) => {
     setvehicalPanel(false);
     setPanelOpen(false);
     setconfromRidePanel(true);
-    setSelectedId(id);
+    const details = {
+      name : vehicle.name,
+      price : Math.round((routedetails?.distance || 1) * vehicle.pricePerKm),
+      time : routedetails?.duration || vehicle?.time,
+      distance : routedetails?.distance || 1,
+      pickup : pickup,
+      destination : destination,
+      polyline : routedetails?.polyline,
+      steps : routedetails?.steps,
+    }
+    setconformDetails(details)
   };
-
   return (
     <div className="bg-white p-4 rounded-t-xl shadow-lg">
       <div className="relative">
@@ -56,28 +65,27 @@ function DriverSelection({setvehicalPanel,setconfromRidePanel , setPanelOpen,set
 
         <button className="flex items-center justify-between bg-gray-200 px-4 py-2 rounded-full text-lg mb-3 w-1/2">
           <i className="ri-time-line mr-2"></i> Leave Now 
-          <i className="ri-arrow-down-s-line"></i> {/* Moved it inside flex */}
+          <i className="ri-arrow-down-s-line"></i>
         </button>
       </div>
 
-      {/* Ride Options List */}
-      {rideOptions.map((ride) => (
+      {ride.map((vehicle, index) => (
         <div
-          key={ride.id}
-          className={`flex items-center p-4 border rounded-lg mb-2 cursor-pointer transition ${
-            selectedId === ride.id ? "border-black shadow-md" : "border-gray-300"
-          }`}
-          onClick={() => handleSelect(ride.id)}
+          key={index}
+          onClick={() => handleSelect(vehicle)}
+          className="flex items-center justify-between p-4 border-b cursor-pointer hover:bg-gray-50"
         >
-          <img src={ride.image} alt={ride.name} className="w-12 h-12 mr-4" />
+          <img src={vehicle.image} alt={vehicle.name} className="w-12 h-12 mr-4" />
           <div className="flex-1">
             <p className="text-lg font-semibold">
-              {ride.name} <i className="ri-user-line ml-1"></i> {ride.capacity}
+              {vehicle.name} <i className="ri-user-line ml-1"></i> {vehicle.capacity}
             </p>
-            <p className="text-sm text-gray-500">{ride.time}</p>
-            <p className="text-sm text-gray-400">{ride.description}</p>
+            <p className="text-sm text-gray-500">{routedetails?.distance || 0}Km</p>
+            <p className="text-sm text-gray-400">{routedetails?.duration || 0}</p>
           </div>
-          <p className="text-lg font-semibold">₹{ride.price.toFixed(2)}</p>
+          <p className="text-lg font-semibold">
+            ₹{Math.round((routedetails?.distance || 1) * vehicle.pricePerKm)}
+          </p>
         </div>
       ))}
     </div>

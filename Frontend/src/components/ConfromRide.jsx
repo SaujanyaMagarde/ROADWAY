@@ -1,7 +1,7 @@
 import React from 'react'
 import logo from '../picture/logo.png'
 import 'remixicon/fonts/remixicon.css';
-function ConfromRide({setconfromRidePanel,setLookingforDriverPanel}) {
+function ConfromRide({setconfromRidePanel,setLookingforDriverPanel,conformDetails}) {
   return (
     <div>
       <h3
@@ -17,21 +17,21 @@ function ConfromRide({setconfromRidePanel,setLookingforDriverPanel}) {
         <div className='flex items-center gap-5 p-3 border-b-2 '>
         <i className="ri-map-pin-user-fill"></i>
         <div >
-          <h3 className='text-lg font-bold'>pune institute of technology</h3>
+          <h3 className='text-lg font-bold'>{conformDetails?.pickup.location}</h3>
           <p className='text-base text-gray-600'></p>
         </div>
         </div>
         <div className='flex items-center gap-5 p-3 border-b-2 ' >
         <i className="ri-map-pin-2-fill text-lg"></i>
         <div >
-          <h3 className='text-lg font-bold'>shivajinagar</h3>
+          <h3 className='text-lg font-bold'>{conformDetails?.destination.location}</h3>
           <p className='text-base text-gray-600'></p>
         </div>
         </div>
         <div className='flex items-center gap-5 ml-3 '>
         <i class="ri-currency-fill"></i>
         <div >
-          <h3 className='text-lg font-bold'>$193.20</h3>
+          <h3 className='text-lg font-bold'>{conformDetails?.price}</h3>
           <p className='text-base text-gray-600'>Cash Payment</p>
         </div>
         </div>

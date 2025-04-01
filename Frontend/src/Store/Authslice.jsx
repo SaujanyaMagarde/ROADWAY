@@ -1,8 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { Route } from "react-router-dom";
 
 const initialState = {
   userdata: null, 
-  status: false,  
+  status: false,
 };
 
 const authSlice = createSlice({
@@ -20,5 +21,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { login, logout } = authSlice.actions;
+export const { login, logout} = authSlice.actions;
 export default authSlice.reducer;
