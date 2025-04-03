@@ -29,7 +29,6 @@ const SearchPanel = ({suggestion,type,setPickup,setDestination}) => {
             className="flex items-start py-3 border-b cursor-pointer"
             onClick={() =>{ 
               handleSelectLocation(name, type)
-              console.log(name)
             }}
           >
             <i className="ri-map-pin-fill"></i>

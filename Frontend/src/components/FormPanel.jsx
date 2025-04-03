@@ -68,8 +68,16 @@ function FormPanel({
 
     const submitHandler = async (e) => {
         e.preventDefault();
+        
+        if (!pickup.lat || !destination.lat) {
+            alert("Please enter both pickup and destination locations.");
+            return; // Stop function execution if validation fails
+        }
+
+
         setvehicalPanel(true);
         setPanelOpen(false);
+
     
         try {
             const res = await axios.post(import.meta.env.VITE_MAP_DIRECTION, {
@@ -94,7 +102,6 @@ function FormPanel({
     
                 
                 setroutedetails(routeInfo);
-                console.log("Stored Route Info:", routeInfo);
             } else {
                 console.error("Route data is empty or unavailable.");
             }
@@ -115,8 +122,6 @@ function FormPanel({
             <h4 className="text-2xl font-bold">Find trip</h4>
             <form onSubmit={submitHandler}>
                 <div className="line absolute h-16 w-1 top-[30%] bg-gray-600 left-9 rounded-full"></div>
-                
-                {/* Pickup Location Input */}
                 <input
                     className="input-field bg-[#eee] px-12 py-2 text-lg rounded-lg w-full mt-3 mb-3"
                     type="text"
