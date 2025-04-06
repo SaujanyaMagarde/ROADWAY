@@ -4,6 +4,7 @@ import { ApiResponse } from '../utils/ApiRes.js';
 import { asyncHandler } from '../utils/AsyncHandels.js';
 import { uploadResult } from '../utils/Cloudinary.js';
 import { Captain } from '../models/captain.model.js';
+import { Ride } from '../models/ride.model.js';
 
 const registerCaptain = asyncHandler(async (req, res) => {
     const { firstname, lastname, email, password, mobile_no, color, plate, capacity, vehicleType } = req.body;
@@ -189,15 +190,198 @@ const getProfileCaptain = asyncHandler(async (req,res)=>{
     .json(
         new ApiResponse(
             200,"captain profile fetched successfully",{
-                cpatain : captain
+                nearbyRides
             },
         )
     )
 })
 
+const getride = asyncHandler(async (req, res) => {
+    if (!req.captain || !req.captain._id) {
+        throw new ApiError(401, "Unauthorized request");
+    }
+
+    const captainID = req.captain._id;
+    const lat = parseFloat(req.query.lat);
+    const lng = parseFloat(req.query.lng);
+
+    if (isNaN(lat) || isNaN(lng)) {
+        throw new ApiError(400, "Valid latitude and longitude are required");
+    }
+
+    const maxDistance = 5000; // 5km radius
+
+    const nearbyRides = await Ride.aggregate([
+        {
+            $geoNear: {
+                near: {
+                    type: "Point",
+                    coordinates: [lng, lat], // GeoJSON format: [longitude, latitude]
+                },
+                distanceField: "distance",
+                maxDistance: maxDistance,
+                query: { status: "pending" },
+                spherical: true,
+            },
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "user",
+                foreignField: "_id",
+                as: "user",
+            },
+        },
+        {
+            $unwind: "$user",
+        },
+        {
+            $project: {
+                pickup: 1,
+                destination: 1,
+                fare: 1,
+                status: 1,
+                distance: 1,
+                "user.fullname": 1,
+                "user.email": 1,
+            },
+        },
+    ]);
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            "Nearby rides fetched successfully",
+            { nearbyRides }
+        )
+    );
+});
+
+const acceptRide = asyncHandler(async (req, res) => {
+    if (!req.captain || !req.captain._id) {
+        throw new ApiError(401, "Unauthorized request");
+    }
+
+    const captainID = req.captain._id;
+    const { rideId } = req.query;
+
+    if (!rideId) {
+        throw new ApiError(400, "rideId is required to accept a ride");
+    }
+
+
+    const ride = await Ride.findOne({ _id: rideId, status: "pending" });
+    if (!ride) {
+        throw new ApiError(404, "Ride not found or already accepted");
+    }
+
+    // Update the ride with the captain and status
+    const updatedRide = await Ride.findByIdAndUpdate(
+        rideId,
+        {
+            captain: captainID,
+            status: "accepted",
+            otp : 1234,
+        },
+        { new: true }
+    );
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            "Ride accepted successfully",
+            updatedRide
+        )
+    );
+});
+
+const startJurny = asyncHandler(async(req,res)=>{
+    if (!req.captain || !req.captain._id) {
+        throw new ApiError(401, "Unauthorized request");
+    }
+
+    const captainID = req.captain._id;
+    const { rideId } = req.query;
+    const {otp} = req.query;
+
+    if (!rideId) {
+        throw new ApiError(400, "rideId is required to accept a ride");
+    }
+
+    if(!otp){
+        throw new ApiError(400,"please provide otp");
+    }
+
+    const ride = await Ride.findOne({ _id: rideId});
+    if (!ride) {
+        throw new ApiError(404, "Ride not found or already accepted");
+    }
+
+    if (ride.otp !== otp) {
+        throw new ApiError(401, "Invalid OTP");
+    }
+
+    // Update the ride with the captain and status
+    const updatedRide = await Ride.findByIdAndUpdate(
+        rideId,
+        {
+            status: "ongoing"
+        },
+        { new: true }
+    );
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            "Ride accepted successfully",
+            updatedRide
+        )
+    );
+})
+
+const completeRide = asyncHandler(async(req,res)=>{
+    if (!req.captain || !req.captain._id) {
+        throw new ApiError(401, "Unauthorized request");
+    }
+
+    const captainID = req.captain._id;
+    const { rideId } = req.query;
+
+    if (!rideId) {
+        throw new ApiError(400, "rideId is required to accept a ride");
+    }
+
+
+    const ride = await Ride.findOne({ _id: rideId});
+    if (!ride) {
+        throw new ApiError(404, "Ride not found or already accepted");
+    }
+
+    // Update the ride with the captain and status
+    const updatedRide = await Ride.findByIdAndUpdate(
+        rideId,
+        {
+            status: "completed"
+        },
+        { new: true }
+    );
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            "Ride accepted successfully",
+            updatedRide
+        )
+    );
+});
+
 export { 
     registerCaptain,
     loginCaptain,
     logoutCaptain,
-    getProfileCaptain
+    getProfileCaptain,
+    getride,
+    acceptRide,
+    completeRide,
+    startJurny,
  };

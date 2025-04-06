@@ -11,12 +11,14 @@ import Home from './pages/Home.jsx'
 import CaptainHome from './pages/CaptainHome.jsx'
 import Riding from './pages/Riding.jsx'
 import CaptainRiding from './pages/captainRiding.jsx'
+import UserProfile from './components/UserProfile.jsx'
 function App() {
   return (
     <div>
       <Routes>
         <Route path='/' element={<Start/>}/>
         <Route path='/user-login' element={<UserLogin/>}/>
+        <Route path='/user-profile' element={<UserProtectecdWrapper><UserProfile/></UserProtectecdWrapper>}/>
         <Route path='/user-signup' element={<UserSignup/>}/>
         <Route path='/riding' element={<UserProtectecdWrapper><Riding/></UserProtectecdWrapper>}/>
         <Route path='/captain-login' element={<CaptainLogin/>}/>

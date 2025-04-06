@@ -40,7 +40,9 @@ const SearchPanel = ({suggestion,type,setPickup,setDestination}) => {
           </div>
         ))}
       </div>
-      <div className="mt-4 flex items-center cursor-pointer text-lg">
+      <div
+        onClick={()=>(alert('sooryy this function is currently under development '))}
+      className="mt-4 flex items-center cursor-pointer text-lg">
         <i className="ri-map-pin-line text-2xl mr-3"></i> Set location on map
       </div>
     </div>
