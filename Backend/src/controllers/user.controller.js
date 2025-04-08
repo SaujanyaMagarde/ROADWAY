@@ -4,6 +4,7 @@ import { ApiResponse } from '../utils/ApiRes.js';
 import { asyncHandler } from '../utils/AsyncHandels.js';
 import { uploadResult } from '../utils/Cloudinary.js';
 import { User } from '../models/user.model.js';
+import {Ride} from '../models/ride.model.js'
 
 const registerUser = asyncHandler(async (req, res) => {
     const { firstname, lastname, email, password, mobile_no } = req.body;
@@ -167,11 +168,35 @@ const getProfile = asyncHandler(async (req,res)=>{
     )
 })
 
+const getOtp = asyncHandler(async (req,res)=>{
+    const userId = req.user._id;
 
+    if(!userId){
+        throw new ApiError(401 , "user not found please signup");
+    }
+
+    const {rideId} = req.query;
+
+
+    const ride = await Ride.findById(rideId);
+
+    if(!ride){
+        throw new ApiError(404,"ride not found");
+    }
+
+    if(!ride.otp){
+        throw new ApiError(404,"otp is not genrated by user");
+    }
+    const otp = ride.otp;
+
+    return res.status(200).json(new ApiResponse(200,"otp fetched succefully",otp));
+
+})
 
 export { 
     registerUser ,
     loginUser,
     logoutUser,
-    getProfile
+    getProfile,
+    getOtp,
 };

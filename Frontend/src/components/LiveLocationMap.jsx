@@ -21,9 +21,9 @@ const LiveLocationMap = () => {
   }, []);
 
   return (
-    <div style={{ height: "900px", width: "100%" }}>
+    <div style={{ height: "100vh", width: "100%" }}>
       {position ? (
-        <MapContainer center={position} zoom={13} style={{ height: "900%", width: "100%" }}>
+        <MapContainer center={position} zoom={13} style={{ height: "100%", width: "100%" }}>
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -33,7 +33,7 @@ const LiveLocationMap = () => {
           </Marker>
         </MapContainer>
       ) : (
-        <p>Loading your location...</p>
+        <p style={{ textAlign: "center", paddingTop: "2rem" }}>Loading your location...</p>
       )}
     </div>
   );

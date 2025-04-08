@@ -7,7 +7,7 @@ import driverprofile from '../picture/driverprofile.png'
 
 function CatainBref() {
   return (
-    <div className='items-center justify-between'>
+    <div className='items-center bg-white justify-between'>
               <div className='flex items-center justify-center gap-3'>
                 <img className='h-10 w-10 rounded-full object-cover' src={driverprofile} alt=''/>
                 <h4 className='text-lg font-medium'>Harsh Patel</h4>
@@ -31,6 +31,10 @@ function CatainBref() {
                 <p className='text-sm text-gray-600' >Hours Online</p>
                 </div>
               </div>
+              <div className="flex w-11/12 max-w-sm mx-auto items-center justify-center bg-green-500 font-bold text-lg sm:text-xl text-white h-12 rounded-full shadow-md">
+  <h1>SEARCH FOR RIDE</h1>
+</div>
+
             </div>
   )
 }

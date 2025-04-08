@@ -134,7 +134,7 @@ function Home() {
       className='w-15 h-15 absolute right-3 top-3 z-20'>
         <i className="ri-account-circle-2-line text-5xl"></i>
       </h2>
-      <div className="h-screen w-screen absolute top-0 left-0 z-0pointer-events-auto">
+      <div className="h-screen w-screen absolute top-0 left-0 z-0 pointer-events-auto">
         <LiveLocationMap routedetails={routedetails} />
       </div>
       <div 

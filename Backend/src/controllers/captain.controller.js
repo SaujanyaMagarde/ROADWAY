@@ -6,6 +6,7 @@ import { uploadResult } from '../utils/Cloudinary.js';
 import { Captain } from '../models/captain.model.js';
 import { Ride } from '../models/ride.model.js';
 
+
 const registerCaptain = asyncHandler(async (req, res) => {
     const { firstname, lastname, email, password, mobile_no, color, plate, capacity, vehicleType } = req.body;
 
@@ -146,7 +147,7 @@ const loginCaptain = asyncHandler(async (req,res)=>{
             },
         )
     )
-})
+});
 
 const logoutCaptain = asyncHandler(async (req,res)=>{
     Captain.findByIdAndUpdate(req.captain._id,{
@@ -170,8 +171,7 @@ const logoutCaptain = asyncHandler(async (req,res)=>{
     .json(
         new ApiResponse(200,{},"captain logged out")
     )
-})
-
+});
 
 const getProfileCaptain = asyncHandler(async (req,res)=>{
     const captainId = req.captain._id;
@@ -190,11 +190,11 @@ const getProfileCaptain = asyncHandler(async (req,res)=>{
     .json(
         new ApiResponse(
             200,"captain profile fetched successfully",{
-                nearbyRides
+                captain
             },
         )
     )
-})
+});
 
 const getride = asyncHandler(async (req, res) => {
     if (!req.captain || !req.captain._id) {
@@ -269,19 +269,16 @@ const acceptRide = asyncHandler(async (req, res) => {
         throw new ApiError(400, "rideId is required to accept a ride");
     }
 
-
     const ride = await Ride.findOne({ _id: rideId, status: "pending" });
     if (!ride) {
         throw new ApiError(404, "Ride not found or already accepted");
     }
-
-    // Update the ride with the captain and status
+    
     const updatedRide = await Ride.findByIdAndUpdate(
         rideId,
         {
             captain: captainID,
             status: "accepted",
-            otp : 1234,
         },
         { new: true }
     );
@@ -294,6 +291,40 @@ const acceptRide = asyncHandler(async (req, res) => {
         )
     );
 });
+
+const sendOtp = asyncHandler(async (req,res)=>{
+    if(!req.captain || !req.captain._id){
+        throw new ApiError(401,"Unauthorized request");
+    }
+
+    const { rideId } = req.query;
+    const {captainID} = req.captain?._id;
+
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+    
+    const updatedRide = await Ride.findOneAndUpdate(
+        {
+            _id: rideId,
+            captain: captainID,
+        },
+        {
+            $set: { otp: newOtp } // setting the new OTP
+        },
+        { new: true } // return the updated document
+    );
+
+    if(!updateRide){
+        throw new ApiError("sorry otp faild to genrate");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            "otp send successfully successfully",
+            updateRide
+        )
+    );
+})
 
 const startJurny = asyncHandler(async(req,res)=>{
     if (!req.captain || !req.captain._id) {
@@ -346,6 +377,7 @@ const completeRide = asyncHandler(async(req,res)=>{
 
     const captainID = req.captain._id;
     const { rideId } = req.query;
+    const {paymentID} = req.query;
 
     if (!rideId) {
         throw new ApiError(400, "rideId is required to accept a ride");
@@ -361,7 +393,11 @@ const completeRide = asyncHandler(async(req,res)=>{
     const updatedRide = await Ride.findByIdAndUpdate(
         rideId,
         {
-            status: "completed"
+            status: "completed",
+            isPaid : true,
+            paymentID : paymentID,
+            signature : "@roadway#fulltrust#support@system"
+
         },
         { new: true }
     );
@@ -375,6 +411,49 @@ const completeRide = asyncHandler(async(req,res)=>{
     );
 });
 
+const getHistory = asyncHandler(async (req, res) => {
+    if (!req.captain || !req.captain._id) {
+      throw new ApiError('Unauthorised request', 401);
+    }
+  
+    const completedRides = await Ride.aggregate([
+      {
+        $match: {
+          captain: req.captain._id,
+          status: "completed"
+        }
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "user",
+          foreignField: "_id",
+          as: "user"
+        }
+      },
+      {
+        $unwind: "$user"
+      },
+      {
+        $project: {
+          pickup: 1,
+          destination: 1,
+          fare: 1,
+          status: 1,
+          distance: 1,
+          duration: 1,
+          "user.fullname": 1,
+          "user.email": 1,
+        }
+      }
+    ]);
+  
+    res.status(200).json({
+      success: true,
+      rides: completedRides
+    });
+});
+
 export { 
     registerCaptain,
     loginCaptain,
@@ -384,4 +463,6 @@ export {
     acceptRide,
     completeRide,
     startJurny,
+    getHistory,
+    sendOtp,
  };

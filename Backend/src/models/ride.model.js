@@ -53,7 +53,7 @@ const rideSchema = new Schema({
   duration: Number, // in seconds
   distance: Number, // in meters
   paymentID: String,
-  otp : Number,
+  otp : String,
   signature: String,
 }, {
   timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }
