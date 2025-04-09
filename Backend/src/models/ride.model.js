@@ -42,15 +42,15 @@ const rideSchema = new Schema({
   },
   rideType: {
     type: String,
-    enum: ['bike', 'auto', 'car'],
-    default: 'car',
+    enum: ['Moto', 'UberGo', 'UberAuto'],
+    default: 'Moto',
   },
   status: {
     type: String,
     enum: ['pending', 'accepted', 'ongoing', 'completed', 'cancelled'],
     default: 'pending',
   },
-  duration: Number, // in seconds
+  duration: String, // in seconds
   distance: Number, // in meters
   paymentID: String,
   otp : String,

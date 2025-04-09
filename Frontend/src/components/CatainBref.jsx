@@ -1,11 +1,62 @@
-import React from 'react'
+import React, {useState,useEffect} from 'react'
 import logo from '../picture/logo.png';
 import home_map from '../picture/home_map.gif'
 import 'remixicon/fonts/remixicon.css';
 import {Link} from 'react-router-dom';
 import driverprofile from '../picture/driverprofile.png'
+import axios from  'axios';
 
-function CatainBref() {
+function CatainBref({setrideAvailablle,setridePopup}) {
+
+  const [position, setPosition] = useState(null);
+
+  useEffect(() => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setPosition([pos.coords.latitude, pos.coords.longitude]);
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+        }
+      );
+    } else {
+      console.error("Geolocation is not supported by this browser.");
+    }
+  }, []);
+
+  const submiteventhandler = async () => {
+    if (!position) {
+      alert("Location not available yet.");
+      return;
+    }
+
+    const [lat, lng] = position;
+
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_GET_RIDE}?lat=${lat}&lng=${lng}&maxDistance=5000`,
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (res.data.success) {
+        console.log("Nearby rides:", res.data.data.nearbyRides);
+        const data = res.data.data.nearbyRides;
+        setrideAvailablle(data);
+        setridePopup(true);
+      } else {
+        alert("Please refresh the page and try again later");
+      }
+    } catch (error) {
+      alert("Please refresh the page and try again later");
+    }
+  };
+
   return (
     <div className='items-center bg-white justify-between'>
               <div className='flex items-center justify-center gap-3'>
@@ -32,9 +83,10 @@ function CatainBref() {
                 </div>
               </div>
               <div className="flex w-11/12 max-w-sm mx-auto items-center justify-center bg-green-500 font-bold text-lg sm:text-xl text-white h-12 rounded-full shadow-md">
-  <h1>SEARCH FOR RIDE</h1>
+  <h1
+  onClick={()=>{submiteventhandler()}}
+  >SEARCH FOR RIDE</h1>
 </div>
-
             </div>
   )
 }

@@ -21,7 +21,7 @@ CaptainRouter.route("/captain-logout").get(verifyJWTCaptain,logoutCaptain)
 
 CaptainRouter.route("/captain-getProfile").get(verifyJWTCaptain,getProfileCaptain)
 
-CaptainRouter.route("/captain-get-ride").post(verifyJWTCaptain,getride);
+CaptainRouter.route("/captain-get-ride").get(verifyJWTCaptain,getride);
 
 CaptainRouter.route("/captain-accept-ride").get(verifyJWTCaptain,acceptRide);
 

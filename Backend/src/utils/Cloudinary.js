@@ -6,6 +6,7 @@ cloud.config({
     api_key : process.env.CLOUD_KEY,
     api_secret : process.env.CLOUD_SECRET,
 });
+
 const uploadResult = async (localFilePath)=>{
     try{
         if(!localFilePath) return null

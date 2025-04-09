@@ -17,6 +17,7 @@ function CaptainHome() {
   const [routedetails, setroutedetails] = useState(null);
   const [conformRide, setConformRide] = useState(false);
   const conformRideRef = useRef(null);
+  const [rideAvailablle, setrideAvailablle] = useState([])
 
   useGSAP(() => {
     gsap.to(ridePopupRef.current, {
@@ -55,7 +56,7 @@ function CaptainHome() {
       </div>
       {/* Captain Brief */}
       <div className="absolute bottom-[0%] w-full z-30">
-        <CatainBref />
+        <CatainBref setrideAvailablle={setrideAvailablle} setridePopup={setridePopup}/>
       </div>
 
       {/* Ride Popup */}
@@ -63,7 +64,7 @@ function CaptainHome() {
         ref={ridePopupRef}
         className="fixed w-full z-40 bottom-0 translate-y-full bg-white px-4 py-6 rounded-t-2xl shadow-lg"
       >
-        <RidePopup setridePopup={setridePopup} setConformRide={setConformRide} />
+        <RidePopup setridePopup={setridePopup} setConformRide={setConformRide} rideAvailablle={rideAvailablle} />
       </div>
 
       {/* Confirm Ride Popup */}
