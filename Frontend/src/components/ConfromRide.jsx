@@ -7,14 +7,15 @@ function ConfirmRide({ setconfromRidePanel, setLookingforDriverPanel, conformDet
   if (!conformDetails) {
     return <h1>Loading...</h1>;
   }
+  console.log(conformDetails);
 
   const submitHandler = async (e) => {
     e.preventDefault();
     const rideData = {
       destination: conformDetails.destination,
       pickup: conformDetails.pickup,
-      distance: conformDetails.distance * 1000,
-      time: conformDetails.time,
+      distance: conformDetails.distance_m,// in m
+      duration: conformDetails.time, // in readable
       fare: conformDetails.price,
       rideType: conformDetails.name,
     };

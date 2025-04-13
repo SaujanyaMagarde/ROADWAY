@@ -58,8 +58,7 @@ const createRide = asyncHandler(async (req, res) => {
       signature: "@roadway#all$right&reserved#",
       isPaid: false,
       status: "pending",
-    });
-  
+    });  
     res.status(201).json(new ApiResponse(201,"ride created successfully",newRide));
 });
 

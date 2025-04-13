@@ -46,6 +46,7 @@ function DriverSelection({setvehicalPanel,setconfromRidePanel , setPanelOpen,set
       price : Math.round((routedetails?.distance || 1) * vehicle.pricePerKm),
       time : routedetails?.duration || vehicle?.time,
       distance : routedetails?.distance || 1,
+      distance_m : routedetails?.distance_m || 1,
       pickup : pickup,
       destination : destination,
       polyline : routedetails?.polyline,

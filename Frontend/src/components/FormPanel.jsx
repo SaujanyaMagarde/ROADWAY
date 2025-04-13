@@ -92,6 +92,7 @@ function FormPanel({
                 const routeData = res.data.data.data.routes[0];
                 const routeInfo = {
                     distance: routeData.legs[0]?.readable_distance || "N/A",
+                    distance_m: routeData.legs[0]?.distance || "N/A",
                     duration: routeData.legs[0]?.readable_duration || "N/A",
                     startLocation: routeData.legs[0]?.start_location || {},
                     endLocation: routeData.legs[0]?.end_location || {},
@@ -99,8 +100,7 @@ function FormPanel({
                     polyline: routeData.overview_polyline || "",
                     source: res.data.data.source_from || "Unknown",
                 };
-    
-                
+                                
                 setroutedetails(routeInfo);
             } else {
                 console.error("Route data is empty or unavailable.");

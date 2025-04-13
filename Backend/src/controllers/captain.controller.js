@@ -209,7 +209,7 @@ const getride = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Valid latitude and longitude are required");
     }
 
-    const maxDistance = 5000; // 5km radius
+    const maxDistance = 5000;
 
     const nearbyRides = await Ride.aggregate([
         {
