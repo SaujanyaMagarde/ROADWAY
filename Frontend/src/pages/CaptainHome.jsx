@@ -9,6 +9,7 @@ import ConformRidePopup from '../components/ConformRidePopup.jsx';
 import LiveLocationMap from '../components/LiveLocationMap.jsx';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
+import GoToPickup from '../components/GoToPickup.jsx';
 
 function CaptainHome() {
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ function CaptainHome() {
   const conformRideRef = useRef(null);
   const [rideAvailablle, setrideAvailablle] = useState([])
   const [confromDetails, setconfromDetails] = useState(null)
+  const [pickupride,setpickupride] = useState(null);
 
   useGSAP(() => {
     gsap.to(ridePopupRef.current, {
@@ -77,6 +79,7 @@ function CaptainHome() {
           setConformRide={setConformRide}
           setridePopup={setridePopup}
           confromDetails={confromDetails}
+          setpickupride={setpickupride}
         />
       </div>
     </div>

@@ -1,9 +1,13 @@
 import React from 'react';
 import logo from '../picture/logo.png';
 import axios from 'axios';
-
-function ConformRidePopup({ setridePopup, setConformRide, confromDetails }) {
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import {fillride} from '../Store/CaptainSlice.jsx';
+function ConformRidePopup({ setridePopup, setConformRide, confromDetails,setpickupride}) {
   
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const submitHandler = async (e) => {
     e.preventDefault();
   
@@ -20,9 +24,10 @@ function ConformRidePopup({ setridePopup, setConformRide, confromDetails }) {
         withCredentials: true,
       });
   
-      console.log("Ride accepted:", res.data);
-
-      //to be continued further
+      console.log("Ride accepted:", res.data.data);
+      setpickupride(res.data.data);
+      dispatch(fillride(res.data.data));
+      navigate('/captain-ridestart');
     } catch (error) {
       console.error("Error accepting ride:", error);
       alert("Failed to accept ride. Please try again.");
@@ -39,7 +44,7 @@ function ConformRidePopup({ setridePopup, setConformRide, confromDetails }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-green-400 bg-opacity-40 backdrop-blur-sm px-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-10 backdrop-blur-sm px-4">
       <div className="w-full max-w-xl p-6 bg-white/90 backdrop-blur-md rounded-3xl shadow-2xl border border-gray-200 transition-all duration-300 animate-fadeIn">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">

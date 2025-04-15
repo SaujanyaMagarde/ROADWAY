@@ -13,6 +13,7 @@ import Riding from './pages/Riding.jsx'
 import CaptainRiding from './pages/captainRiding.jsx'
 import UserProfile from './components/UserProfile.jsx'
 import CaptainProfilePage from './components/CaptainProfile.jsx'
+import RideStart from './pages/RideStart.jsx'
 function App() {
   return (
     <div>
@@ -28,6 +29,7 @@ function App() {
         <Route path='/captain-home' element={<CaptainProtectecdWrapper><CaptainHome/></CaptainProtectecdWrapper>}   />
         <Route path='/captain-riding' element={<CaptainProtectecdWrapper><CaptainRiding/></CaptainProtectecdWrapper>}   />
         <Route path='/captain-profile' element={<CaptainProtectecdWrapper><CaptainProfilePage/></CaptainProtectecdWrapper>} />
+        <Route path='/captain-ridestart' element={<CaptainProtectecdWrapper><RideStart/></CaptainProtectecdWrapper>} />
       </Routes>
     </div>
   )
