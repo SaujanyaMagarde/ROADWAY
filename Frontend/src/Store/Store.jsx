@@ -5,6 +5,7 @@ import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import authReducer from "./Authslice.jsx"; 
 import captainauthReducer from "./CaptainSlice.jsx";
+import socketReducer from "./SocketSlice.jsx";
 
 // Separate persist configs for both reducers
 const authPersistConfig = {
@@ -25,6 +26,7 @@ const store = configureStore({
   reducer: {
     auth: persistedAuthReducer,
     captainauth: persistedCaptainAuthReducer,
+    socket: socketReducer,
   },
 });
 

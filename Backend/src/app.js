@@ -1,7 +1,11 @@
 import express from "express"
 import cors from "cors"
 import cookieparser from "cookie-parser"
+import http from 'http'
+
 const app = express()
+const server = http.createServer(app);
+
 app.use(cors({
     origin: 'http://localhost:5173',
     credentials: true,
@@ -21,4 +25,4 @@ app.use("/api/v1/captain",CaptainRouter);
 import { MapRouter } from "./routes/map.route.js";
 app.use("/api/v1/map",MapRouter);
 
-export default app
+export { app, server }

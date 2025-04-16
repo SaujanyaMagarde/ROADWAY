@@ -1,18 +1,23 @@
-import dotenv from "dotenv"
-import connnectdb from "./db/index.js";
-import app from "./app.js"
+import dotenv from "dotenv";
+import connectdb from "./db/index.js";
+import { app, server } from "./app.js";
+import { initializeSocket } from "./utils/socket.js";
 
-dotenv.config({
-    path : "./.env"
-})
+dotenv.config({ path: "./.env" });
 
-connnectdb()
-.then(()=>{
-    app.listen(process.env.PORT || 8000,()=>{
-        console.log(`listining on ${process.env.PORT} `);
-    })
-})
-.catch((err)=>{
-    console.log(err);
-    throw err;
-})
+connectdb()
+  .then(() => {
+    const PORT = process.env.PORT || 8000;
+    
+    // Initialize socket
+    const io = initializeSocket(server);
+    
+    server.listen(PORT, () => {
+      console.log(`🚀 Server is listening on http://localhost:${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("❌ Failed to connect to database", err);
+    process.exit(1);
+  });
+

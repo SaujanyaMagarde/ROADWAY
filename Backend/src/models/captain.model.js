@@ -76,7 +76,10 @@ const captainSchema = new Schema({
                 type : Number,
             }
         }
-    }
+    },
+    socketId :{
+        type : String,
+    },
 }, { timestamps: true });
 
 // Hash password before saving

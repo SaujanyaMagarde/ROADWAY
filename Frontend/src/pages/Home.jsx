@@ -33,7 +33,8 @@ function Home() {
   const [waitingforDriver, setwaitingforDriver] = useState(false)
   const waitingforDriverRef = useRef(null)
   const [conformDetails, setconformDetails] = useState(null)
-  
+
+
   useGSAP(() => {
     if (panelOpen) {
       gsap.to(panelRef.current, {
