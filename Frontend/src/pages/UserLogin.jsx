@@ -4,6 +4,10 @@ import axios from "axios";
 import { login } from "../Store/Authslice.jsx";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import {store} from '../Store/Store.jsx'
+import {initializeSocket} from '../Store/SocketSlice.jsx'
+import { setConnected } from "../Store/SocketSlice.jsx";
+
 function UserLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -29,6 +33,8 @@ function UserLogin() {
       if (res.status === 200) {
         const data = res.data.data.user;
         dispatch(login(data));
+        store.dispatch(initializeSocket());
+        dispatch(setConnected(true));
         navigate('/user-home');
       }
     } catch (error) {

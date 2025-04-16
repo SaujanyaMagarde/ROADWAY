@@ -4,6 +4,9 @@ import axios from 'axios';
 import {login} from '../Store/CaptainSlice.jsx';
 import { useSelector,useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { store } from '../Store/Store.jsx';
+import { initializeSocket } from '../Store/SocketSlice.jsx';
+import { setConnected } from '../Store/SocketSlice.jsx';
 function CaptainLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -26,6 +29,8 @@ function CaptainLogin() {
       const captain_data = res.data.data.Captain
       console.log(captain_data)
       dispatch(login(captain_data))
+      store.dispatch(initializeSocket());
+      dispatch(setConnected(true));
       navigate("/captain-home");
     } catch (error) {
       console.log(error);

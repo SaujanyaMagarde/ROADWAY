@@ -7,8 +7,7 @@ import { StoreProvider } from './Store/Store.jsx'
 import { store } from './Store/Store.jsx'
 import { initializeSocket } from './Store/SocketSlice.jsx'
 
-// Initialize socket connection
-store.dispatch(initializeSocket());
+
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

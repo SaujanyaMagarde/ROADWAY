@@ -12,8 +12,15 @@ import WaitforDriver from '../components/WaitforDriver.jsx'
 import FormPanel from '../components/FormPanel.jsx';
 import LiveLocationMap from '../components/LiveLocationMap.jsx';
 import { useNavigate } from 'react-router-dom';
+import {socket} from '../Store/SocketSlice.jsx';
+import { useSelector,useDispatch } from 'react-redux';
+import { initializeSocket } from '../Store/SocketSlice.jsx';
+import { setConnected } from '../Store/SocketSlice.jsx';
+import { store } from '../Store/Store.jsx';
+
 function Home() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [routedetails, setroutedetails] = useState(null)
   const [suggestion, setsuggestion] = useState([])
   const [pickup, setPickup] = useState({});
@@ -33,6 +40,26 @@ function Home() {
   const [waitingforDriver, setwaitingforDriver] = useState(false)
   const waitingforDriverRef = useRef(null)
   const [conformDetails, setconformDetails] = useState(null)
+
+  store.dispatch(initializeSocket());
+  dispatch(setConnected(true));
+
+  const user = useSelector((state) => state.auth.userdata);
+  const isConnected = useSelector((state) => state.socket.connected);
+
+  console.log(user);
+  console.log(isConnected);
+  useEffect(() => {
+      console.log("juibdsv");
+      if (user && isConnected) {
+        console.log("running")
+          socket.emit("join", {
+              userId: user._id,
+              userType: "user",
+          });
+          console.log("🧩 Emitted join event!", user._id, user.role);
+      }
+  }, []);
 
 
   useGSAP(() => {

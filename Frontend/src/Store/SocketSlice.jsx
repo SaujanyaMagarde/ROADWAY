@@ -70,5 +70,6 @@ export const listenForMessages = () => (dispatch) => {
         dispatch(addMessage(message));
     });
 };
+export { socket };
 
 export default socketSlice.reducer;
