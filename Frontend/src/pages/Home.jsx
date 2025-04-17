@@ -49,17 +49,32 @@ function Home() {
 
   console.log(user);
   console.log(isConnected);
+  
+
   useEffect(() => {
-      console.log("juibdsv");
-      if (user && isConnected) {
-        console.log("running")
-          socket.emit("join", {
-              userId: user._id,
-              userType: "user",
-          });
-          console.log("🧩 Emitted join event!", user._id, user.role);
-      }
-  }, []);
+    if (user && isConnected) {
+      socket.emit("join", {
+        userId: user._id,
+        userType: "user",
+      });
+      console.log("🧩 Emitted join event!", user._id, user.role);
+  
+      // ✅ Add socket listener once
+      const handleMessage = (data) => {
+        if (data.type === "ride_accepted") {
+          console.log("🚕 Ride Accepted", data);
+          // Optionally: update Redux or UI here
+        }
+      };
+  
+      socket.on("message", handleMessage);
+  
+      // 🧼 Clean up listener
+      return () => {
+        socket.off("message", handleMessage);
+      };
+    }
+  }, [user, isConnected]);
 
 
   useGSAP(() => {

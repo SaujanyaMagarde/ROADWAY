@@ -5,8 +5,8 @@ import { asyncHandler } from '../utils/AsyncHandels.js';
 import { uploadResult } from '../utils/Cloudinary.js';
 import { Captain } from '../models/captain.model.js';
 import { Ride } from '../models/ride.model.js';
-
-
+import { getIO,sendMessageToSocket } from '../utils/socket.js';
+import {User} from '../models/user.model.js'
 const registerCaptain = asyncHandler(async (req, res) => {
     const { firstname, lastname, email, password, mobile_no, color, plate, capacity, vehicleType } = req.body;
 
@@ -205,11 +205,13 @@ const getride = asyncHandler(async (req, res) => {
     const lat = parseFloat(req.query.lat);
     const lng = parseFloat(req.query.lng);
 
+    console.log(captainID);
+
     if (isNaN(lat) || isNaN(lng)) {
         throw new ApiError(400, "Valid latitude and longitude are required");
     }
 
-    const maxDistance = 5000;
+    const maxDistance = 10000;
 
     const nearbyRides = await Ride.aggregate([
         {
@@ -282,6 +284,19 @@ const acceptRide = asyncHandler(async (req, res) => {
         },
         { new: true }
     );
+
+    console.log(updatedRide);
+    
+    const user = await User.findById(updatedRide.user);
+    if (user && user.socketId) {
+        console.log(user.socketId)
+        sendMessageToSocket(user.socketId, {
+            type: "ride_accepted",
+            rideId: updatedRide._id,
+            captainId: updatedRide.captain,
+            status: updatedRide.status,
+        });
+    }
 
     return res.status(200).json(
         new ApiResponse(
