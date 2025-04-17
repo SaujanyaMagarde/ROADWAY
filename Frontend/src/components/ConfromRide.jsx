@@ -7,7 +7,6 @@ function ConfirmRide({ setconfromRidePanel, setLookingforDriverPanel, conformDet
   if (!conformDetails) {
     return <h1>Loading...</h1>;
   }
-  console.log(conformDetails);
 
   const submitHandler = async (e) => {
     e.preventDefault();

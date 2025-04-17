@@ -17,7 +17,7 @@ import { useSelector,useDispatch } from 'react-redux';
 import { initializeSocket } from '../Store/SocketSlice.jsx';
 import { setConnected } from '../Store/SocketSlice.jsx';
 import { store } from '../Store/Store.jsx';
-
+import { rideStart } from '../Store/Authslice.jsx';
 function Home() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -46,9 +46,6 @@ function Home() {
 
   const user = useSelector((state) => state.auth.userdata);
   const isConnected = useSelector((state) => state.socket.connected);
-
-  console.log(user);
-  console.log(isConnected);
   
 
   useEffect(() => {
@@ -58,12 +55,13 @@ function Home() {
         userType: "user",
       });
       console.log("🧩 Emitted join event!", user._id, user.role);
-  
-      // ✅ Add socket listener once
+
       const handleMessage = (data) => {
         if (data.type === "ride_accepted") {
           console.log("🚕 Ride Accepted", data);
-          // Optionally: update Redux or UI here
+          dispatch(rideStart(data));
+          setLookingforDriverPanel(false);
+          setwaitingforDriver(true);
         }
       };
   
@@ -199,11 +197,11 @@ function Home() {
       </div>
 
       <div ref={LookingforDriverRef} className='fixed w-full z-40 bottom-0 translate-y-full bg-white px-3 py-6 ' >
-        <LookingforDriver setLookingforDriverPanel={setLookingforDriverPanel} setwaitingforDriver={setwaitingforDriver}  LookingforDriverPanel={LookingforDriverPanel}  conformDetails={conformDetails}/>
+        <LookingforDriver conformDetails={conformDetails}/>
       </div>
 
       <div ref={waitingforDriverRef} className='fixed w-full z-40 bottom-0 translate-y-full bg-white px-3 py-6 ' >
-        <WaitforDriver setwaitingforDriver={setwaitingforDriver}/>
+        <WaitforDriver/>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 import React from 'react'
 import logo from '../picture/logo.png'
-function LookingforDriver({ setLookingforDriverPanel ,setwaitingforDriver,LookingforDriverPanel,conformDetails}) {
+function LookingforDriver({conformDetails}) {
   return (
     <div>
       <h3 className='text-2xl font-semibold mb-5' >Looking for a Driver</h3>
@@ -25,11 +25,6 @@ function LookingforDriver({ setLookingforDriverPanel ,setwaitingforDriver,Lookin
         <div className='flex items-center gap-5 ml-3 '>
         <i class="ri-currency-fill"></i>
         <div 
-        onClick={()=>{
-          setLookingforDriverPanel(false);
-          console.log(LookingforDriverPanel)
-          setwaitingforDriver(true);
-        }}
         >
           <h3 className='text-lg font-bold'>{conformDetails?.price}</h3>
           <p className='text-base text-gray-600'>Cash Payment</p>
