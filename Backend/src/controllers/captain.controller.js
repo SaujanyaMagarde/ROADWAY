@@ -469,6 +469,31 @@ const getHistory = asyncHandler(async (req, res) => {
     });
 });
 
+const getuserdata = asyncHandler(async (req, res) => {
+
+    const user_id = req.body?.user_id;
+
+    if (!user_id) {
+        throw new ApiError(400, "Request data is missing or malformed");
+    }
+
+    console.log(user_id);
+    const user = await User.findById(user_id).select("-password -refreshToken");
+
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            "User profile fetched successfully",
+            { user }
+        )
+    );
+});
+
+
 export { 
     registerCaptain,
     loginCaptain,
@@ -480,4 +505,5 @@ export {
     startJurny,
     getHistory,
     sendOtp,
+    getuserdata,
  };

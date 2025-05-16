@@ -20,7 +20,6 @@ const CaptainProfilePage = () => {
   };
 
   const submitlogout = ()=>{
-
     console.log("hi")
   }
 

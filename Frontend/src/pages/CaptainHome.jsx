@@ -33,13 +33,9 @@ function CaptainHome() {
 
   const user = useSelector((state) => state.captainauth.captaindata);
   const isConnected = useSelector((state) => state.socket.connected);
-
-  console.log(user);
-  console.log(isConnected);
+  
   useEffect(() => {
-      console.log("juibdsv");
       if (user && isConnected) {
-        console.log("running")
           socket.emit("join", {
               userId: user._id,
               userType: "captain",

@@ -4,6 +4,7 @@ const initialState = {
     captaindata: null, 
     isAuthenticated: false,
     rideData :null,
+    userdata : null,
 };
   
 const captainauthSlice = createSlice({
@@ -23,10 +24,14 @@ const captainauthSlice = createSlice({
     },
     emptyride :(state)=>{
       state.rideData = null;
-    }
+      state.userdata = null;
+    },
+    filluser : (state,action)=>{
+      state.userdata = action.payload;
+    },
   },
 });
   
-  export const { login, logout ,fillride,emptyride} = captainauthSlice.actions;
+  export const { login, logout ,fillride,emptyride,filluser} = captainauthSlice.actions;
   export default captainauthSlice.reducer;
   

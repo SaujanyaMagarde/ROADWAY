@@ -47,7 +47,6 @@ function Home() {
   const user = useSelector((state) => state.auth.userdata);
   const isConnected = useSelector((state) => state.socket.connected);
   
-
   useEffect(() => {
     if (user && isConnected) {
       socket.emit("join", {
@@ -62,6 +61,10 @@ function Home() {
           dispatch(rideStart(data));
           setLookingforDriverPanel(false);
           setwaitingforDriver(true);
+        }
+        else if(data.type == "location-captain") {
+          console.log("captain moved");
+          
         }
       };
   

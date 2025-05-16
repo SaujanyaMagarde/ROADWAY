@@ -1,7 +1,7 @@
 import {Router} from "express";
 import {upload} from "../middlewares/multer.middleware.js"
 import {verifyJWTCaptain} from '../middlewares/captainauth.middleware.js'
-import { loginCaptain, logoutCaptain, registerCaptain , getProfileCaptain, getride, acceptRide, startJurny, completeRide, getHistory, sendOtp } from "../controllers/captain.controller.js";
+import { loginCaptain, logoutCaptain, registerCaptain , getProfileCaptain, getride, acceptRide, startJurny, completeRide, getHistory, sendOtp, getuserdata } from "../controllers/captain.controller.js";
 
 
 const CaptainRouter = Router();
@@ -33,6 +33,5 @@ CaptainRouter.route("/captain-complete-ride").post(verifyJWTCaptain,completeRide
 
 CaptainRouter.route("/captain-get-history").get(verifyJWTCaptain,getHistory);
 
-
-
+CaptainRouter.route("/captain-get-userdata").post(verifyJWTCaptain,getuserdata);
 export {CaptainRouter}

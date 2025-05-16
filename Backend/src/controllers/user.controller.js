@@ -5,6 +5,7 @@ import { asyncHandler } from '../utils/AsyncHandels.js';
 import { uploadResult } from '../utils/Cloudinary.js';
 import { User } from '../models/user.model.js';
 import {Ride} from '../models/ride.model.js'
+import { Captain } from '../models/captain.model.js';
 
 const registerUser = asyncHandler(async (req, res) => {
     const { firstname, lastname, email, password, mobile_no } = req.body;
@@ -193,10 +194,40 @@ const getOtp = asyncHandler(async (req,res)=>{
 
 })
 
+const getcaptaindata = asyncHandler(async (req,res)=>{
+
+    if(!req || !req.captain_id){
+        throw new ApiError("data fectced error");
+    }
+
+    const captain_id = req.captain_id;
+
+    if(!captain_id){
+        throw new ApiError("captain id messing");
+    }
+
+    const captain = Captain.findById(captain_id).select(" -password -refreshToken");
+
+    if(!captain){
+        throw new ApiError("captain missing");
+    }
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(
+            200,"user profile fetched successfully",{
+                captain : captain,
+            },
+        )
+    )
+});
+
 export { 
     registerUser ,
     loginUser,
     logoutUser,
     getProfile,
     getOtp,
+    getcaptaindata,
 };

@@ -2,9 +2,28 @@ import React from 'react';
 import 'remixicon/fonts/remixicon.css';
 import driverprofile from '../picture/driverprofile.png'
 import { useSelector } from 'react-redux';
+import { useEffect,useState } from 'react';
+import axios from 'axios';
 function WaitforDriver() {
   const rideData = useSelector((state)=>state.auth.rideData);
-  console.log(rideData);
+  // const [captaindata, setcaptaindata] = useState(null);
+  
+  // const getCaptaindata = async()=>{
+  //   try {
+  //     const res = await axios.post(import.meta.env.VITE_RIDE_BOOK,rideData.captainId,{
+  //       withCredentials: true,
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //     })
+  //     console.log(res);
+      
+  //   }catch (error) {
+  //     console.log(error);
+  //   }
+  // };
+  // useEffect(()=>{getCaptaindata()},[]);
+
   return (
     <div>
       <h5 className='p-1 text-center w-[93%] absolute top-0'><i className="text-3xl text-gray-200 ri-arrow-down-wide-line"></i></h5>

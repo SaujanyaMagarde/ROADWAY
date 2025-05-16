@@ -6,6 +6,7 @@ import { Captain } from "../models/captain.model.js";
 // Helper: generate new access & refresh tokens
 const generateCaptainTokens = async (captainID) => {
     const captain = await Captain.findById(captainID);
+    console.log(captain);
     const accessToken = captain.generateAccessToken();
     const refreshToken = captain.generateRefreshToken();
 
