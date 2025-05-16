@@ -37,8 +37,6 @@ function Home() {
   const conformPanelRef = useRef(null);
   const LookingforDriverRef = useRef(null);
   const [LookingforDriverPanel, setLookingforDriverPanel] = useState(false)
-  const [waitingforDriver, setwaitingforDriver] = useState(false)
-  const waitingforDriverRef = useRef(null)
   const [conformDetails, setconformDetails] = useState(null)
 
   store.dispatch(initializeSocket());
@@ -57,10 +55,22 @@ function Home() {
 
       const handleMessage = (data) => {
         if (data.type === "ride_accepted") {
-          console.log("🚕 Ride Accepted", data);
+          console.log(data);
+          // captainId
+          // : 
+          // "67ddc805088591d8567622d6"
+          // rideId
+          // : 
+          // "682789476ec67f60d8356689"
+          // status
+          // : 
+          // "accepted"
+          // type
+          // : 
+          // "ride_accepted"
           dispatch(rideStart(data));
           setLookingforDriverPanel(false);
-          setwaitingforDriver(true);
+          navigate('/user-ridestart');
         }
         else if(data.type == "location-captain") {
           console.log("captain moved");
@@ -150,21 +160,7 @@ function Home() {
     }
   },[LookingforDriverPanel])
 
-  useGSAP(()=>{
-    if (waitingforDriver) {
-      gsap.to(waitingforDriverRef.current, {
-        y: 0,
-        duration: 0.3,
-        ease: "power2.out",
-      });
-    } else {
-      gsap.to(waitingforDriverRef.current, {
-        y: "100%",  // Move it out of view
-        duration: 0.3,
-        ease: "power2.in",
-      });
-    }
-  },[waitingforDriver])
+
 
 
   
@@ -201,10 +197,6 @@ function Home() {
 
       <div ref={LookingforDriverRef} className='fixed w-full z-40 bottom-0 translate-y-full bg-white px-3 py-6 ' >
         <LookingforDriver conformDetails={conformDetails}/>
-      </div>
-
-      <div ref={waitingforDriverRef} className='fixed w-full z-40 bottom-0 translate-y-full bg-white px-3 py-6 ' >
-        <WaitforDriver/>
       </div>
     </div>
   );

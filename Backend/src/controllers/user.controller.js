@@ -194,34 +194,55 @@ const getOtp = asyncHandler(async (req,res)=>{
 
 })
 
-const getcaptaindata = asyncHandler(async (req,res)=>{
+const getcaptaindata = asyncHandler(async (req, res) => {
+  if (!req || !req.body.captain_id) {
+    throw new ApiError("data fetch error");
+  }
 
-    if(!req || !req.captain_id){
-        throw new ApiError("data fectced error");
-    }
+  const captain_id = req.body.captain_id;
 
-    const captain_id = req.captain_id;
+  if (!captain_id) {
+    throw new ApiError("captain id missing");
+  }
 
-    if(!captain_id){
-        throw new ApiError("captain id messing");
-    }
+  const captain = await Captain.findById(captain_id).select("-password -refreshToken");
 
-    const captain = Captain.findById(captain_id).select(" -password -refreshToken");
+  if (!captain) {
+    throw new ApiError("Captain not found");
+  }
 
-    if(!captain){
-        throw new ApiError("captain missing");
-    }
-
-    return res
-    .status(200)
-    .json(
-        new ApiResponse(
-            200,"user profile fetched successfully",{
-                captain : captain,
-            },
-        )
-    )
+  return res.status(200).json(
+    new ApiResponse(200, "Captain profile fetched successfully", {
+      captain,
+    })
+  );
 });
+
+const getrideinfo = asyncHandler(async (req, res) => {
+  if (!req || !req.body.ride_id) {
+    throw new ApiError("data fetch error");
+  }
+
+  const ride_id = req.body.ride_id;
+
+  if (!ride_id) {
+    throw new ApiError("ride id missing");
+  }
+
+  const ride = await Ride.findById(ride_id).select("-password -refreshToken");
+
+  if (!ride) {
+    throw new ApiError("ride not found");
+  }
+
+  return res.status(200).json(
+    new ApiResponse(200, "ride profile fetched successfully", {
+      ride,
+    })
+  );
+});
+
+
 
 export { 
     registerUser ,
@@ -230,4 +251,5 @@ export {
     getProfile,
     getOtp,
     getcaptaindata,
+    getrideinfo
 };
