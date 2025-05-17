@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState,useEffect } from 'react';
 import logo from '../picture/logo.png';
 import LiveLocationMap from '../components/LiveLocationMap.jsx';
 import WaitforDriver from '../components/WaitforDriver.jsx';
@@ -6,14 +6,47 @@ import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import 'remixicon/fonts/remixicon.css';
 import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-
+import { useSelector,useDispatch } from 'react-redux';
+import { socket,initializeSocket,setConnected } from '../Store/SocketSlice.jsx';
+import { store } from '../Store/Store.jsx';
 function UserRide() {
   const waitingforDriverRef = useRef(null);
   const [isPanelOpen, setIsPanelOpen] = useState(true);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const ride = useSelector((state) => state.auth.rideData);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const driverId = ride?.captainId;
+  const driverLocation = useSelector(state => state.socket.driverLocation);
+
+  //socket initialize
+  store.dispatch(initializeSocket());
+  dispatch(setConnected(true));
+
+  const user = useSelector((state) => state.auth.userdata);
+  const isConnected = useSelector((state) => state.socket.connected);
+
+  useEffect(() => {
+      if (user && isConnected) {
+        socket.emit("join", {
+          userId: user._id,
+          userType: "user",
+        });
+        console.log("🧩 Emitted join event!", user._id, user.role);
+        const handleMessage = (data) => {
+          console.log("message comes");
+          console.log(data);
+          if(data.type === 'captain_location'){
+            console.log("matched");
+            console.log(data);
+          }
+        };
+        socket.on("message", handleMessage);
+        return () => {
+          socket.off("message", handleMessage);
+        };
+      }
+    }, [user, isConnected]);
   
   useGSAP(() => {
     if (!isPanelOpen) {

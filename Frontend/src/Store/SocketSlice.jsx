@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import io from "socket.io-client";
+import { useDispatch } from "react-redux";
 
 // Initialize socket with options
 const socket = io(`${import.meta.env.VITE_SERVER_URL}`, {
@@ -12,7 +13,8 @@ const socket = io(`${import.meta.env.VITE_SERVER_URL}`, {
 const initialState = {
     connected: false,
     messages: [],
-    error: null
+    error: null,
+    driverLocation: null,
 };
 
 const socketSlice = createSlice({
@@ -27,11 +29,14 @@ const socketSlice = createSlice({
         },
         setError: (state, action) => {
             state.error = action.payload;
-        }
+        },
+        setDriverLocation: (state, action) => {
+            state.driverLocation = action.payload;
+        },
     }
 });
 
-export const { setConnected, addMessage, setError } = socketSlice.actions;
+export const { setConnected, addMessage, setError,setDriverLocation } = socketSlice.actions;
 
 // Socket middleware functions
 export const initializeSocket = () => (dispatch) => {
@@ -60,16 +65,17 @@ export const initializeSocket = () => (dispatch) => {
 };
 
 export const sendMessage = (message) => () => {
-    console.log("📤 Sending message:", message);
+    console.log("Sending message:", message);
     socket.emit("message", message);
 };
 
 export const listenForMessages = () => (dispatch) => {
     socket.on("message", (message) => {
-        console.log("📨 Received message:", message);
+        console.log(" Received message:", message);
         dispatch(addMessage(message));
     });
 };
+
 export { socket };
 
 export default socketSlice.reducer;

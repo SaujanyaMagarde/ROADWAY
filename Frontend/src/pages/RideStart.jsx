@@ -9,19 +9,25 @@ import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import axios from 'axios';
 import { filluser } from '../Store/CaptainSlice.jsx';
+import {socket} from '../Store/SocketSlice.jsx';
+import { initializeSocket } from '../Store/SocketSlice.jsx';
+import { setConnected } from '../Store/SocketSlice.jsx';
+import { store } from '../Store/Store.jsx';
 
 function RideStart() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const gotopickRef = useRef(null);
-  
+  const gotopickRef = useRef(null);  
   const ride = useSelector((state) => state.captainauth.rideData);
   const user = useSelector((state) => state.captainauth.userdata);
-  
+  const isConnected = useSelector((state) => state.socket.connected);
+  const captain_id = useSelector((state)=>(state.captainauth.captaindata._id));
+  const socket_id = user.socket_id;
   const [isFullHeight, setIsFullHeight] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [routePolyline, setRoutePolyline] = useState(null);
+
 
   const fetchUserData = async () => {
     if (!ride?.user) {
@@ -57,8 +63,6 @@ function RideStart() {
   
   useEffect(() => {
     fetchUserData();
-
-    // Listen for polyline updates from GoToPickup component
     const handlePolylineUpdate = (event) => {
       setRoutePolyline(event.detail);
     };

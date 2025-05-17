@@ -56,31 +56,19 @@ function Home() {
       const handleMessage = (data) => {
         if (data.type === "ride_accepted") {
           console.log(data);
-          // captainId
-          // : 
-          // "67ddc805088591d8567622d6"
-          // rideId
-          // : 
-          // "682789476ec67f60d8356689"
-          // status
-          // : 
-          // "accepted"
-          // type
-          // : 
-          // "ride_accepted"
           dispatch(rideStart(data));
           setLookingforDriverPanel(false);
           navigate('/user-ridestart');
         }
         else if(data.type == "location-captain") {
           console.log("captain moved");
-          
+        }
+        else if(data.type == "captain_location"){
+          console.log("driver location fetched");
+          console.log(data)
         }
       };
-  
       socket.on("message", handleMessage);
-  
-      // 🧼 Clean up listener
       return () => {
         socket.off("message", handleMessage);
       };

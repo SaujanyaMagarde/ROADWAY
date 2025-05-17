@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useSelector,useDispatch } from 'react-redux';
+import { store } from '../Store/Store';
+import { socket } from '../Store/SocketSlice';
+import { initializeSocket } from '../Store/SocketSlice';
+import { setConnected } from '../Store/SocketSlice';
+
 
 function GoToPickup({ setgopick, isFullHeight, setIsFullHeight, ride, user }) {
   const [userLocation, setUserLocation] = useState(null);
@@ -11,10 +17,35 @@ function GoToPickup({ setgopick, isFullHeight, setIsFullHeight, ride, user }) {
   const [estimatedTime, setEstimatedTime] = useState(null);
   const [currentStep, setCurrentStep] = useState(null);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  store.dispatch(initializeSocket());
+  dispatch(setConnected(true));
+
+  const captain = useSelector((state) => state.captainauth.captaindata);
+  const isConnected = useSelector((state) => state.socket.connected);
+  const socket_id = user.socketId;
+  console.log("socket id is",socket_id);
+
+  useEffect(() => {
+      if (captain && isConnected) {
+        socket.emit("join", {
+          userId: captain._id,
+          userType: "captain",
+        });
+        const handleMessage = (data) => {
+          //
+        };
+        console.log("🧩 Emitted join event!", captain._id);
+        return () => {
+          socket.off("message", handleMessage);
+        };
+      }
+    }, [user, isConnected]);
 
   const handleArrowClick = () => setIsFullHeight(!isFullHeight);
 
-  // Helper: check if two coords are close (within ~30m)
+  //range 30 m 
   const locationsAreClose = (loc1, loc2, threshold = 0.0003) => {
     if (!loc1 || !loc2) return false;
     const latDiff = Math.abs(loc1.lat - loc2.lat);
@@ -76,6 +107,21 @@ function GoToPickup({ setgopick, isFullHeight, setIsFullHeight, ride, user }) {
           }
 
           if (currentCoords && pickup.lat && pickup.lng && !navigationStopped) {
+            try {
+              const res = await axios.post(
+                import.meta.env.VITE_SENDLOCATION,
+                { socket_id: socket_id,location : currentCoords},
+                {
+                  withCredentials: true,
+                  headers: {
+                    "Content-Type": "application/json"
+                  }
+                }
+              );
+              console.log(res);
+            } catch (error) {
+              console.log(error);
+            }
             try {
               const url = `https://api.olamaps.io/routing/v1/directions?origin=${currentCoords.lat},${currentCoords.lng}&destination=${pickup.lat},${pickup.lng}&api_key=${import.meta.env.VITE_OLA_MAP_API_KEY}`;
               const response = await axios.post(url, {});

@@ -493,6 +493,27 @@ const getuserdata = asyncHandler(async (req, res) => {
     );
 });
 
+const sendlocation = asyncHandler(async (req,res)=>{
+    console.log("hello");
+    const socket_id = req?.body?.socket_id;
+    const location = req?.body?.location;
+    if(!socket_id || !location){
+        throw new ApiError("soory socket_id and loccation not found");
+    }
+    sendMessageToSocket(socket_id, {
+        type: "captain_location",
+        location : location,
+    });
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            "location sent successfully",
+            location
+        )
+    );
+})
+
 
 export { 
     registerCaptain,
@@ -506,4 +527,5 @@ export {
     getHistory,
     sendOtp,
     getuserdata,
+    sendlocation,
  };
