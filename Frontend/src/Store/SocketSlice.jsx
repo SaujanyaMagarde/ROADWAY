@@ -14,7 +14,6 @@ const initialState = {
     connected: false,
     messages: [],
     error: null,
-    driverLocation: null,
 };
 
 const socketSlice = createSlice({
@@ -30,13 +29,10 @@ const socketSlice = createSlice({
         setError: (state, action) => {
             state.error = action.payload;
         },
-        setDriverLocation: (state, action) => {
-            state.driverLocation = action.payload;
-        },
     }
 });
 
-export const { setConnected, addMessage, setError,setDriverLocation } = socketSlice.actions;
+export const { setConnected, addMessage, setError} = socketSlice.actions;
 
 // Socket middleware functions
 export const initializeSocket = () => (dispatch) => {

@@ -1,4 +1,4 @@
-import React, { useRef, useState,useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import logo from '../picture/logo.png';
 import LiveLocationMap from '../components/LiveLocationMap.jsx';
 import WaitforDriver from '../components/WaitforDriver.jsx';
@@ -6,9 +6,11 @@ import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import 'remixicon/fonts/remixicon.css';
 import { useNavigate } from 'react-router-dom';
-import { useSelector,useDispatch } from 'react-redux';
-import { socket,initializeSocket,setConnected } from '../Store/SocketSlice.jsx';
+import { useSelector, useDispatch } from 'react-redux';
+import { socket, initializeSocket, setConnected } from '../Store/SocketSlice.jsx';
 import { store } from '../Store/Store.jsx';
+import axios from 'axios';
+
 function UserRide() {
   const waitingforDriverRef = useRef(null);
   const [isPanelOpen, setIsPanelOpen] = useState(true);
@@ -17,7 +19,16 @@ function UserRide() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const driverId = ride?.captainId;
-  const driverLocation = useSelector(state => state.socket.driverLocation);
+  const [driverlocation, setdriverlocation] = useState(null);
+  const [polyline, setPolyline] = useState(null);
+
+  // New states to track route information
+  const [routeData, setRouteData] = useState(null);
+  const [totalDistance, setTotalDistance] = useState(null);
+  const [totalTime, setTotalTime] = useState(null);
+  
+  // State to track user's current location
+  const [userLocation, setUserLocation] = useState(null);
 
   //socket initialize
   store.dispatch(initializeSocket());
@@ -26,28 +37,29 @@ function UserRide() {
   const user = useSelector((state) => state.auth.userdata);
   const isConnected = useSelector((state) => state.socket.connected);
 
+  // Socket connection effect
   useEffect(() => {
-      if (user && isConnected) {
-        socket.emit("join", {
-          userId: user._id,
-          userType: "user",
-        });
-        console.log("🧩 Emitted join event!", user._id, user.role);
-        const handleMessage = (data) => {
-          console.log("message comes");
-          console.log(data);
-          if(data.type === 'captain_location'){
-            console.log("matched");
-            console.log(data);
-          }
-        };
-        socket.on("message", handleMessage);
-        return () => {
-          socket.off("message", handleMessage);
-        };
-      }
-    }, [user, isConnected]);
+    if (user && isConnected) {
+      socket.emit("join", {
+        userId: user._id,
+        userType: "user",
+      });
+      console.log("🧩 Emitted join event!", user._id, user.role);
+      const handleMessage = (data) => {
+        console.log("Socket message received:", data);
+        if(data.type === 'captain_location'){
+          console.log("Driver location updated:", data.location);
+          setdriverlocation(data.location);
+        }
+      };
+      socket.on("message", handleMessage);
+      return () => {
+        socket.off("message", handleMessage);
+      };
+    }
+  }, [user, isConnected]);
   
+  // GSAP animation effect
   useGSAP(() => {
     if (!isPanelOpen) {
       gsap.to(waitingforDriverRef.current, {
@@ -70,6 +82,87 @@ function UserRide() {
     }
   }, [isPanelOpen, isCollapsed]);
 
+  // Set up user location tracking
+  useEffect(() => {
+    let watchId;
+    
+    if ("geolocation" in navigator) {
+      watchId = navigator.geolocation.watchPosition(
+        (pos) => {
+          const userLoc = {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude
+          };
+          setUserLocation(userLoc);
+          
+          // If driver location is available, fetch the route
+          if (driverlocation) {
+            fetchRoute(userLoc.lat, userLoc.lng, driverlocation.lat, driverlocation.lng);
+          }
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0,
+        }
+      );
+    }
+    
+    return () => {
+      if (watchId) navigator.geolocation.clearWatch(watchId);
+    };
+  }, []);
+
+  // Function to fetch route when either user or driver location changes
+  const fetchRoute = async (userLat, userLng, driverLat, driverLng) => {
+    try {
+      console.log("Fetching route from user:", userLat, userLng, "to driver:", driverLat, driverLng);
+      const url = `https://api.olamaps.io/routing/v1/directions?origin=${userLat},${userLng}&destination=${driverLat},${driverLng}&api_key=${import.meta.env.VITE_OLA_MAP_API_KEY}`;
+      
+      const response = await axios.post(url, {});
+      
+      if (response?.data?.routes?.[0]) {
+        const newPolyline = response.data.routes[0].overview_polyline;
+        const newRouteData = response.data.routes[0].legs[0].steps;
+        const newTotalDistance = response.data.routes[0].legs[0].distance.value;
+        const newTotalTime = response.data.routes[0].legs[0].duration.value;
+        
+        console.log("Route data received:", {
+          polyline: newPolyline ? `${newPolyline.substring(0, 20)}...` : 'none',  // Log first part of polyline for debugging
+          steps: newRouteData?.length || 0,
+          distance: newTotalDistance,
+          time: newTotalTime
+        });
+        
+        setPolyline(newPolyline);
+        setRouteData(newRouteData);
+        setTotalDistance(newTotalDistance);
+        setTotalTime(newTotalTime);
+        console.log("🚗 Route updated - Distance:", 
+          (newTotalDistance / 1000).toFixed(2), "km, Time:", 
+          Math.floor(newTotalTime / 60), "min");
+      }
+    } catch (err) {
+      console.error('❌ Route API error:', err.message || err);
+    }
+  };
+
+  // React to driver location changes
+  useEffect(() => {
+    if (driverlocation && userLocation) {
+      console.log("Driver location changed, updating route");
+      fetchRoute(
+        userLocation.lat,
+        userLocation.lng,
+        driverlocation.lat,
+        driverlocation.lng
+      );
+    }
+  }, [driverlocation]);
+
   return (
     <div className="h-screen relative">
       <img className="w-25 absolute right-4 top-15 z-20" src={logo} alt="roadWay" />
@@ -80,8 +173,28 @@ function UserRide() {
         <i className="ri-account-circle-2-line text-5xl"></i>
       </h2>
 
+      {/* Display route summary at the top of the screen */}
+      {totalDistance && totalTime && (
+        <div className="absolute top-0 left-0 right-0 bg-white bg-opacity-90 p-3 shadow-md z-20 text-center">
+          <div className="flex justify-center items-center space-x-4">
+            <div className="flex items-center">
+              <i className="ri-route-line text-blue-600 mr-1"></i>
+              <span className="font-semibold">{(totalDistance / 1000).toFixed(2)} km</span>
+            </div>
+            <div className="flex items-center">
+              <i className="ri-time-line text-blue-600 mr-1"></i>
+              <span className="font-semibold">{Math.floor(totalTime / 60)} min</span>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="h-screen w-screen absolute top-0 left-0 z-0 pointer-events-auto">
-        <LiveLocationMap />
+        <LiveLocationMap 
+          polyline={polyline} 
+          pickupLocation={ride?.pickup}
+          driverLocation={driverlocation} 
+        />
       </div>
 
       <div
@@ -93,6 +206,10 @@ function UserRide() {
           isCollapsed={isCollapsed}
           setIsCollapsed={setIsCollapsed}
           closePanel={() => setIsPanelOpen(false)}
+          routeInfo={{
+            distance: totalDistance,
+            time: totalTime
+          }}
         />
       </div>
     </div>
