@@ -69,7 +69,7 @@ function UserRide() {
       });
     } else if (isCollapsed) {
       gsap.to(waitingforDriverRef.current, {
-        y: '60%',
+        y: '55%',
         duration: 0.3,
         ease: 'power2.inOut',
       });

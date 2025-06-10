@@ -8,7 +8,7 @@ import { initializeSocket } from '../Store/SocketSlice';
 import { setConnected } from '../Store/SocketSlice';
 
 
-function GoToPickup({ setgopick, isFullHeight, setIsFullHeight, ride, user }) {
+function GoToPickup({ setgopick, isFullHeight, setIsFullHeight, ride, user,setotpbox }) {
   const [userLocation, setUserLocation] = useState(null);
   const [routeData, setRouteData] = useState(null);
   const [polyline, setPolyline] = useState(null);
@@ -175,6 +175,11 @@ function GoToPickup({ setgopick, isFullHeight, setIsFullHeight, ride, user }) {
     }
   }, [routeData]);
 
+  const submithandler = async()=>{
+    setotpbox(true);
+    
+  }
+
   return (
     <div className="relative w-full h-full flex flex-col">
       {/* Header with pickup details toggle */}
@@ -258,10 +263,18 @@ function GoToPickup({ setgopick, isFullHeight, setIsFullHeight, ride, user }) {
           <div className="flex items-start gap-2">
             <i className="ri-map-pin-fill text-xl text-red-500 mt-1"></i>
             <div>
-              <p className="text-sm text-gray-500">Destination</p>
+              <p className="text-sm text-gray-500">pickup location</p>
               <p className="text-base font-medium text-gray-800">{ride?.pickup?.location}</p>
             </div>
           </div>
+        </div>
+        
+        <div className="bg-green-300 p-3 rounded-full mt-4">
+          <button
+          onClick={()=>(submithandler())}
+          type="button" className="text-xl font-bold flex items-center ml-18 gap-2">
+            Pickup the customer
+          </button>
         </div>
       </div>
     </div>

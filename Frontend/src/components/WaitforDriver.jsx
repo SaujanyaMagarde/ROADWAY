@@ -53,24 +53,25 @@ function WaitforDriver({ ride, isCollapsed, setIsCollapsed, closePanel }) {
     <div className="relative">
       <h5
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="p-1 text-center w-[93%] absolute top-0 z-50"
+        className=" text-center w-[93%]  top-0 z-50"
       >
         <i
           className={`text-3xl text-gray-400 ri-arrow-${isCollapsed ? 'up' : 'down'}-wide-line`}
         ></i>
       </h5>
 
-      <div className="flex items-center justify-between mt-8">
+      <div className="flex items-center justify-between">
         <img
           className="h-12"
           src="https://swyft.pl/wp-content/uploads/2023/05/how-many-people-can-a-uberx-take.jpg"
           alt=""
         />
         <div className="text-right">
+          <h4 className="text-xl font-semibold -mt-1 -mb-1">OTP : {rideinfo?.otp}</h4>
           <h2 className="text-lg font-medium capitalize">
             {captaindata?.fullname?.firstname} {captaindata?.fullname?.lastname}
           </h2>
-          <h4 className="text-xl font-semibold -mt-1 -mb-1">{captaindata?.vehicle?.plate}</h4>
+          <h4 className="text-xl font-semibold -mt-1 -mb-1">plate no :{captaindata?.vehicle?.plate}</h4>
           <p className="text-sm text-gray-600">{captaindata?.vehicle?.vehicleType}</p>
           <h1 className="text-lg font-semibold">{captaindata?.vehicle?.color}</h1>
         </div>

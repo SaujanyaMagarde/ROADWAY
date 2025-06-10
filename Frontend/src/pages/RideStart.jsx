@@ -13,11 +13,16 @@ import {socket} from '../Store/SocketSlice.jsx';
 import { initializeSocket } from '../Store/SocketSlice.jsx';
 import { setConnected } from '../Store/SocketSlice.jsx';
 import { store } from '../Store/Store.jsx';
+import Otpbox from '../components/Otpbox.jsx';
 
 function RideStart() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const gotopickRef = useRef(null);  
+  const gotopickRef = useRef(null);
+  const otpboxref = useRef(null);
+  const [otpbox, setotpbox] = useState(false)
+  const [newotp, setnewotp] = useState(null)
+  const [paymentId , setpaymentId] = useState(null);
   const ride = useSelector((state) => state.captainauth.rideData);
   const user = useSelector((state) => state.captainauth.userdata);
   const isConnected = useSelector((state) => state.socket.connected);
@@ -76,11 +81,35 @@ function RideStart() {
   
   useGSAP(() => {
     gsap.to(gotopickRef.current, {
-      height: isFullHeight ? '40%' : '20%',
+      height: isFullHeight ? '48%' : '20%',
       duration: 0.3,
       ease: 'power2.out'
     });
   }, [isFullHeight]);
+
+  useGSAP(()=>{
+    if(otpbox){
+      gsap.to(gotopickRef.current,{
+        height: '0%',
+        duration: 0.3,
+        ease: 'power2.out'
+      });
+      gsap.to(otpboxref.current,{
+        height : '40%',
+        duration : 0.3,
+        ease : 'power2.out'
+      });
+    }
+    else{
+      gsap.to(otpboxref.current,{
+        height : '0%',
+        duration : 0.3,
+        ease : 'power2.out'
+      });
+    }
+  },[otpbox])
+
+
   
   return (
     <div className='relative w-full h-screen overflow-hidden bg-gray-100'>
@@ -138,9 +167,19 @@ function RideStart() {
             setIsFullHeight={setIsFullHeight}
             ride={ride}
             user={user}
+            setotpbox={setotpbox}
           />
         )}
       </div>
+
+      <div
+        ref={otpboxref}
+        className="fixed bottom-0 left-0 w-full bg-white rounded-t-xl shadow-lg overflow-hidden z-50"
+        style={{ height: '0%', transition: 'height 0.3s ease' }}
+      >
+        <Otpbox />
+      </div>
+
     </div>
   );
 }

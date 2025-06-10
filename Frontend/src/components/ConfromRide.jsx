@@ -10,6 +10,7 @@ function ConfirmRide({ setconfromRidePanel, setLookingforDriverPanel, conformDet
 
   const submitHandler = async (e) => {
     e.preventDefault();
+      console.log(conformDetails.pickup);
     const rideData = {
       destination: conformDetails.destination,
       pickup: conformDetails.pickup,

@@ -6,6 +6,13 @@ import { uploadResult } from '../utils/Cloudinary.js';
 import { User } from '../models/user.model.js';
 import {Ride} from '../models/ride.model.js';
 
+
+// const del =async()=>{
+//   await Ride.deleteMany({});
+// }
+
+// del();
+
 const createRide = asyncHandler(async (req, res) => {
 
     if(!req.user || !req.user._id){
@@ -40,6 +47,7 @@ const createRide = asyncHandler(async (req, res) => {
     if (!fare || !duration || !distance) {
         throw new ApiError("parameter of ride is missing to book a ride");
     }
+
 
     const newRide = await Ride.create({
       user: userId,

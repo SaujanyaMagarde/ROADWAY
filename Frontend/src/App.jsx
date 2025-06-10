@@ -16,6 +16,7 @@ import CaptainProfilePage from './components/CaptainProfile.jsx'
 import RideStart from './pages/RideStart.jsx'
 import Todestination from './components/Todestination.jsx'
 import UserRide from './pages/UserRide.jsx'
+import CaptainendJurny from './pages/CaptainendJurny.jsx'
 function App() {
   return (
     <div>
@@ -34,6 +35,7 @@ function App() {
         <Route path='/captain-ridestart' element={<CaptainProtectecdWrapper><RideStart/></CaptainProtectecdWrapper>} />
         <Route path='/to-destination' element={<CaptainProtectecdWrapper><Todestination/></CaptainProtectecdWrapper>} />
         <Route path='/user-ridestart' element={<UserProtectecdWrapper><UserRide/></UserProtectecdWrapper>}/>
+        <Route path='/captain-endjurney' element={<CaptainProtectecdWrapper><CaptainendJurny/></CaptainProtectecdWrapper>} />
       </Routes>
     </div>
   )

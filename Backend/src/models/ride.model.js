@@ -61,5 +61,6 @@ const rideSchema = new Schema({
 
 rideSchema.index({ "pickup.coordinates": "2dsphere" });
 
+
 export const Ride = mongoose.model("Ride", rideSchema);
 

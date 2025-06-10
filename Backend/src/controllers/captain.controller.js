@@ -205,13 +205,15 @@ const getride = asyncHandler(async (req, res) => {
     const lat = parseFloat(req.query.lat);
     const lng = parseFloat(req.query.lng);
 
+    console.log({lat,lng});
+
     console.log(captainID);
 
     if (isNaN(lat) || isNaN(lng)) {
         throw new ApiError(400, "Valid latitude and longitude are required");
     }
 
-    const maxDistance = 10000;
+    const maxDistance = 20000;
 
     const nearbyRides = await Ride.aggregate([
         {
@@ -275,12 +277,15 @@ const acceptRide = asyncHandler(async (req, res) => {
     if (!ride) {
         throw new ApiError(404, "Ride not found or already accepted");
     }
+
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
     
     const updatedRide = await Ride.findByIdAndUpdate(
         rideId,
         {
             captain: captainID,
             status: "accepted",
+            otp : otp,
         },
         { new: true }
     );
@@ -328,7 +333,7 @@ const sendOtp = asyncHandler(async (req,res)=>{
         { new: true } // return the updated document
     );
 
-    if(!updateRide){
+    if(!updatedRide){
         throw new ApiError("sorry otp faild to genrate");
     }
 
@@ -336,7 +341,7 @@ const sendOtp = asyncHandler(async (req,res)=>{
         new ApiResponse(
             200,
             "otp send successfully successfully",
-            updateRide
+            updatedRide
         )
     );
 })
@@ -345,10 +350,9 @@ const startJurny = asyncHandler(async(req,res)=>{
     if (!req.captain || !req.captain._id) {
         throw new ApiError(401, "Unauthorized request");
     }
-
-    const captainID = req.captain._id;
-    const { rideId } = req.query;
-    const {otp} = req.query;
+    const captainID = req.captain?._id;
+    const  rideId  = req?.body?.rideId;
+    const otp = req?.body?.otp;
 
     if (!rideId) {
         throw new ApiError(400, "rideId is required to accept a ride");
