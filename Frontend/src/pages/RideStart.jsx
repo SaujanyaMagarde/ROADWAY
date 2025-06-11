@@ -177,7 +177,9 @@ function RideStart() {
         className="fixed bottom-0 left-0 w-full bg-white rounded-t-xl shadow-lg overflow-hidden z-50"
         style={{ height: '0%', transition: 'height 0.3s ease' }}
       >
-        <Otpbox />
+        <Otpbox
+        user = {user}
+        />
       </div>
 
     </div>

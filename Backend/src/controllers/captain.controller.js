@@ -395,8 +395,8 @@ const completeRide = asyncHandler(async(req,res)=>{
     }
 
     const captainID = req.captain._id;
-    const { rideId } = req.query;
-    const {paymentID} = req.query;
+    const { rideId } = req.body;
+    const {paymentID} = req.body;
 
     if (!rideId) {
         throw new ApiError(400, "rideId is required to accept a ride");
@@ -424,7 +424,7 @@ const completeRide = asyncHandler(async(req,res)=>{
     return res.status(200).json(
         new ApiResponse(
             200,
-            "Ride accepted successfully",
+            "Ride Completed successfully",
             updatedRide
         )
     );
@@ -508,12 +508,28 @@ const sendlocation = asyncHandler(async (req,res)=>{
         type: "captain_location",
         location : location,
     });
-
     return res.status(200).json(
         new ApiResponse(
             200,
             "location sent successfully",
             location
+        )
+    );
+})
+
+const sendrideinfo = asyncHandler(async(req,res)=>{
+    console.log("hello");
+    const socket_id = req?.body?.socket_id;
+    if(!socket_id){
+        throw new ApiError("soory socket_id and loccation not found");
+    }
+    sendMessageToSocket(socket_id, {
+        type: "customer_picked",
+    });
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            'enjoy the journey'
         )
     );
 })
@@ -532,4 +548,5 @@ export {
     sendOtp,
     getuserdata,
     sendlocation,
+    sendrideinfo
  };

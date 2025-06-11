@@ -11,7 +11,7 @@ import { socket, initializeSocket, setConnected } from '../Store/SocketSlice.jsx
 import { store } from '../Store/Store.jsx';
 import axios from 'axios';
 
-function UserRide() {
+function UserEndJourney() {
   const waitingforDriverRef = useRef(null);
   const [isPanelOpen, setIsPanelOpen] = useState(true);
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -50,9 +50,6 @@ function UserRide() {
         if(data.type === 'captain_location'){
           console.log("Driver location updated:", data.location);
           setdriverlocation(data.location);
-        }
-        if(data.type === 'customer_picked'){
-          navigate('/UserEndJourney');
         }
       };
       socket.on("message", handleMessage);
@@ -219,4 +216,4 @@ function UserRide() {
   );
 }
 
-export default UserRide;
+export default UserEndJourney;

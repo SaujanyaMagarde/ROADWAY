@@ -8,7 +8,7 @@ import { initializeSocket } from '../Store/SocketSlice';
 import { setConnected } from '../Store/SocketSlice';
 
 
-function GoToPickup({ setgopick, isFullHeight, setIsFullHeight, ride, user,setotpbox }) {
+function GoToDestination({ setgopick, isFullHeight, setIsFullHeight, ride, user,setotpbox }) {
   const [userLocation, setUserLocation] = useState(null);
   const [routeData, setRouteData] = useState(null);
   const [polyline, setPolyline] = useState(null);
@@ -25,7 +25,7 @@ function GoToPickup({ setgopick, isFullHeight, setIsFullHeight, ride, user,setot
   const captain = useSelector((state) => state.captainauth.captaindata);
   const isConnected = useSelector((state) => state.socket.connected);
   const socket_id = user.socketId;
-  console.log("socket id is",socket_id);
+  
 
   useEffect(() => {
       if (captain && isConnected) {
@@ -94,8 +94,8 @@ function GoToPickup({ setgopick, isFullHeight, setIsFullHeight, ride, user,setot
           setUserLocation(currentCoords);
 
           const pickup = {
-            lat: ride?.pickup?.coordinates?.coordinates[1],
-            lng: ride?.pickup?.coordinates?.coordinates[0],
+            lat: ride?.destination?.lat,
+            lng: ride?.destination?.lng,
           };
 
           if (locationsAreClose(currentCoords, pickup)) {
@@ -118,11 +118,11 @@ function GoToPickup({ setgopick, isFullHeight, setIsFullHeight, ride, user,setot
                   }
                 }
               );
-              console.log(res);
             } catch (error) {
               console.log(error);
             }
             try {
+              console.log(pickup);
               const url = `https://api.olamaps.io/routing/v1/directions?origin=${currentCoords.lat},${currentCoords.lng}&destination=${pickup.lat},${pickup.lng}&api_key=${import.meta.env.VITE_OLA_MAP_API_KEY}`;
               const response = await axios.post(url, {});
               
@@ -162,13 +162,10 @@ function GoToPickup({ setgopick, isFullHeight, setIsFullHeight, ride, user,setot
   // Log updated polyline and pass to parent component
   useEffect(() => {
     if (polyline) {
-      console.log('✅ Updated polyline:', polyline);
-      // Pass polyline data to parent component to update map
       window.dispatchEvent(new CustomEvent('polylineUpdated', { detail: polyline }));
     }
   }, [polyline]);
 
-  // Log updated route data
   useEffect(() => {
     if (routeData) {
       console.log('✅ Updated routeData:', routeData);
@@ -176,7 +173,25 @@ function GoToPickup({ setgopick, isFullHeight, setIsFullHeight, ride, user,setot
   }, [routeData]);
 
   const submithandler = async()=>{
-    setotpbox(true);
+    //function to end ride
+    try {
+      console.log(ride._id);
+      const res = await axios.post(
+        import.meta.env.VITE_CAPTAIN_COMPLETE_JOURNEY,
+        { rideId: ride._id,paymentID: "cash"},
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json"
+          }
+        }
+      );
+      console.log(res);
+      
+      // navigate('/captain-home');
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   return (
@@ -191,7 +206,7 @@ function GoToPickup({ setgopick, isFullHeight, setIsFullHeight, ride, user,setot
       >
         <div className="flex items-center gap-2">
           <i className="ri-map-pin-line text-xl"></i>
-          <h3 className="text-lg font-semibold">PICKUP DETAILS</h3>
+          <h3 className="text-lg font-semibold">Destination Details</h3>
         </div>
         <i className={`ri-arrow-${isFullHeight ? 'down' : 'up'}-s-line text-2xl`}></i>
       </div>
@@ -262,8 +277,8 @@ function GoToPickup({ setgopick, isFullHeight, setIsFullHeight, ride, user,setot
           <div className="flex items-start gap-2">
             <i className="ri-map-pin-fill text-xl text-red-500 mt-1"></i>
             <div>
-              <p className="text-sm text-gray-500">pickup location</p>
-              <p className="text-base font-medium text-gray-800">{ride?.pickup?.location}</p>
+              <p className="text-sm text-gray-500">Destination Location</p>
+              <p className="text-base font-medium text-gray-800">{ride?.destination?.location}</p>
             </div>
           </div>
         </div>
@@ -272,7 +287,7 @@ function GoToPickup({ setgopick, isFullHeight, setIsFullHeight, ride, user,setot
           <button
           onClick={()=>(submithandler())}
           type="button" className="text-xl font-bold flex items-center ml-18 gap-2">
-            Pickup the customer
+            END RIDE
           </button>
         </div>
       </div>
@@ -280,4 +295,4 @@ function GoToPickup({ setgopick, isFullHeight, setIsFullHeight, ride, user,setot
   );
 }
 
-export default GoToPickup;
+export default GoToDestination;
