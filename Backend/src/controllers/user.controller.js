@@ -223,7 +223,7 @@ const getrideinfo = asyncHandler(async (req, res) => {
     throw new ApiError("data fetch error");
   }
 
-  const ride_id = req.body.ride_id;
+  const ride_id = req.body?.ride_id;
 
   if (!ride_id) {
     throw new ApiError("ride id missing");

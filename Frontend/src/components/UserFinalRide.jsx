@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { useSelector,useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { store } from '../Store/Store';
 import { socket } from '../Store/SocketSlice';
 import { initializeSocket } from '../Store/SocketSlice';
 import { setConnected } from '../Store/SocketSlice';
 
-
-function GoToDestination({ setgopick, isFullHeight, setIsFullHeight, ride, user,setotpbox }) {
+function UserFinalRide({ isFullHeight, setIsFullHeight, ride, user }) {
   const [userLocation, setUserLocation] = useState(null);
   const [routeData, setRouteData] = useState(null);
   const [polyline, setPolyline] = useState(null);
@@ -18,34 +17,43 @@ function GoToDestination({ setgopick, isFullHeight, setIsFullHeight, ride, user,
   const [currentStep, setCurrentStep] = useState(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
-  store.dispatch(initializeSocket());
-  dispatch(setConnected(true));
-
-  const captain = useSelector((state) => state.captainauth.captaindata);
-  const isConnected = useSelector((state) => state.socket.connected);
-  const socket_id = user.socketId;
   
 
+  // Initialize socket connection
   useEffect(() => {
-      if (captain && isConnected) {
-        socket.emit("join", {
-          userId: captain._id,
-          userType: "captain",
-        });
-        const handleMessage = (data) => {
-          //
-        };
-        console.log("🧩 Emitted join event!", captain._id);
-        return () => {
-          socket.off("message", handleMessage);
-        };
-      }
-    }, [user, isConnected]);
+    store.dispatch(initializeSocket());
+    dispatch(setConnected(true));
+  }, [dispatch]);
+
+  const isConnected = useSelector((state) => state.socket.connected);
+
+  // Socket event handling
+  useEffect(() => {
+    if (user && isConnected) {
+      socket.emit("join", {
+        userId: user._id,
+        userType: "user",
+      });
+      console.log("chalu");
+
+      const handleMessage = (data) => {
+        console.log("done",data);
+        if (data.type === 'ride_end') {
+          navigate('/user-home');
+        }
+      };
+
+      socket.on("message", handleMessage);
+
+      return () => {
+        socket.off("message", handleMessage);
+      };
+    }
+  }, [user, isConnected, navigate]);
 
   const handleArrowClick = () => setIsFullHeight(!isFullHeight);
 
-  //range 30 m 
+  // Range 30m 
   const locationsAreClose = (loc1, loc2, threshold = 0.0003) => {
     if (!loc1 || !loc2) return false;
     const latDiff = Math.abs(loc1.lat - loc2.lat);
@@ -78,7 +86,13 @@ function GoToDestination({ setgopick, isFullHeight, setIsFullHeight, ride, user,
     return html.replace(/<[^>]*>/g, '');
   };
 
+  // Location tracking and route calculation
   useEffect(() => {
+    if (!ride?.destination?.lat || !ride?.destination?.lng) {
+      console.warn('No destination coordinates available');
+      return;
+    }
+
     const intervalId = setInterval(() => {
       if (!navigator.geolocation) {
         console.error('Geolocation not supported.');
@@ -93,55 +107,53 @@ function GoToDestination({ setgopick, isFullHeight, setIsFullHeight, ride, user,
           };
           setUserLocation(currentCoords);
 
-          const pickup = {
-            lat: ride?.destination?.lat,
-            lng: ride?.destination?.lng,
+          const destination = {
+            lat: ride.destination.lat,
+            lng: ride.destination.lng,
           };
 
-          if (locationsAreClose(currentCoords, pickup)) {
+          // Check if user has reached destination
+          if (locationsAreClose(currentCoords, destination)) {
             if (!navigationStopped) {
               setNavigationStopped(true);
-              navigate('/to-destination')
+              // Emit ride completion event to server
+              if (socket && isConnected) {
+                socket.emit('ride_completed', {
+                  rideId: ride._id,
+                  userId: user._id
+                });
+              }
             }
             return;
           }
 
-          if (currentCoords && pickup.lat && pickup.lng && !navigationStopped) {
+          // Calculate route if navigation is still active
+          if (currentCoords && destination.lat && destination.lng && !navigationStopped) {
             try {
-              const res = await axios.post(
-                import.meta.env.VITE_SENDLOCATION,
-                { socket_id: socket_id,location : currentCoords},
-                {
-                  withCredentials: true,
-                  headers: {
-                    "Content-Type": "application/json"
-                  }
-                }
-              );
-            } catch (error) {
-              console.log(error);
-            }
-            try {
-              console.log(pickup);
-              const url = `https://api.olamaps.io/routing/v1/directions?origin=${currentCoords.lat},${currentCoords.lng}&destination=${pickup.lat},${pickup.lng}&api_key=${import.meta.env.VITE_OLA_MAP_API_KEY}`;
+              const url = `https://api.olamaps.io/routing/v1/directions?origin=${currentCoords.lat},${currentCoords.lng}&destination=${destination.lat},${destination.lng}&api_key=${import.meta.env.VITE_OLA_MAP_API_KEY}`;
               const response = await axios.post(url, {});
               
-              const newPolyline = response?.data?.routes[0]?.overview_polyline;
-              const newRouteData = response?.data?.routes[0]?.legs[0]?.steps;
-              const totalDistance = response?.data?.routes[0]?.legs[0]?.distance?.value;
-              const totalTime = response?.data?.routes[0]?.legs[0]?.duration?.value;
+              if (response.data?.routes?.[0]) {
+                const route = response.data.routes[0];
+                const leg = route.legs?.[0];
+                
+                const newPolyline = route.overview_polyline;
+                const newRouteData = leg?.steps;
+                const totalDistance = leg?.distance?.value;
+                const totalTime = leg?.duration?.value;
 
-              setPolyline(newPolyline);
-              setRouteData(newRouteData);
-              setDistanceToPickup(totalDistance);
-              setEstimatedTime(totalTime);
+                setPolyline(newPolyline);
+                setRouteData(newRouteData);
+                setDistanceToPickup(totalDistance);
+                setEstimatedTime(totalTime);
 
-              // Set the current navigation step
-              if (newRouteData && newRouteData.length > 0) {
-                setCurrentStep(newRouteData[0]);
+                // Set the current navigation step
+                if (newRouteData && newRouteData.length > 0) {
+                  setCurrentStep(newRouteData[0]);
+                }
               }
             } catch (err) {
-              console.error('❌ Route API error:', err.message || err);
+              console.error('❌ Route API error:', err.response?.data || err.message);
             }
           }
         },
@@ -157,45 +169,23 @@ function GoToDestination({ setgopick, isFullHeight, setIsFullHeight, ride, user,
     }, 2000); // every 2 seconds
 
     return () => clearInterval(intervalId);
-  }, [ride, navigationStopped]);
+  }, [ride, navigationStopped, socket, isConnected, user]);
 
-  // Log updated polyline and pass to parent component
+  // Update polyline for map component
   useEffect(() => {
     if (polyline) {
       window.dispatchEvent(new CustomEvent('polylineUpdated', { detail: polyline }));
     }
   }, [polyline]);
 
-  useEffect(() => {
-    if (routeData) {
-      console.log('✅ Updated routeData:', routeData);
-    }
-  }, [routeData]);
-
-  const submithandler = async()=>{
-    //function to end ride
-    try {
-      console.log(ride._id);
-      const res = await axios.post(
-        import.meta.env.VITE_CAPTAIN_COMPLETE_JOURNEY,
-        { rideId: ride._id,paymentID: "cash"},
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json"
-          }
-        }
-      );
-      console.log(res);
-      navigate('/captain-home');
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  // Handle ride completion navigation
+  const handleRideComplete = () => {
+    navigate('/user-home');
+  };
 
   return (
     <div className="relative w-full h-full flex flex-col">
-      {/* Header with pickup details toggle */}
+      {/* Header with destination details toggle */}
       <div
         onClick={handleArrowClick}
         className="w-full mx-auto px-4 py-3 bg-blue-600 
@@ -213,18 +203,26 @@ function GoToDestination({ setgopick, isFullHeight, setIsFullHeight, ride, user,
       {/* Navigation instructions */}
       <div className="w-full px-4 py-5 bg-white shadow-md border-l-4 border-blue-600">
         {navigationStopped ? (
-          <div className="flex items-center justify-center gap-3 text-green-600">
-            <i className="ri-checkbox-circle-line text-3xl"></i>
-            <div>
-              <p className="text-xl font-bold">You've arrived at pickup!</p>
-              <p className="text-sm">Meet your passenger and start the ride</p>
+          <div className="flex flex-col items-center justify-center gap-3 text-green-600">
+            <div className="flex items-center gap-3">
+              <i className="ri-checkbox-circle-line text-3xl"></i>
+              <div>
+                <p className="text-xl font-bold">You've arrived at your destination!</p>
+                <p className="text-sm">Thank you for using our service</p>
+              </div>
             </div>
+            <button
+              onClick={handleRideComplete}
+              className="mt-4 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+            >
+              Complete Ride
+            </button>
           </div>
         ) : currentStep ? (
           <div className="flex flex-col">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                <i className="ri-steering-2-line text-2xl text-blue-600"></i>
+                <i className="ri-navigation-line text-2xl text-blue-600"></i>
               </div>
               <div>
                 <p className="text-lg font-medium text-gray-800">
@@ -255,43 +253,22 @@ function GoToDestination({ setgopick, isFullHeight, setIsFullHeight, ride, user,
         )}
       </div>
 
-      {/* Passenger information */}
+      {/* Destination information */}
       <div className="flex-1 bg-white p-4 border-t border-gray-200">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
-            <i className="ri-user-3-line text-2xl text-gray-600"></i>
-          </div>
-          <div>
-            <h2 className="text-lg font-semibold text-gray-800">
-              {user?.fullname?.firstname} {user?.fullname?.lastname}
-            </h2>
-            <div className="flex items-center gap-2 text-gray-600">
-              <i className="ri-phone-line"></i>
-              <span>{user?.mobile_no}</span>
-            </div>
-          </div>
-        </div>
-
         <div className="bg-gray-100 p-3 rounded-lg">
           <div className="flex items-start gap-2">
             <i className="ri-map-pin-fill text-xl text-red-500 mt-1"></i>
             <div>
               <p className="text-sm text-gray-500">Destination Location</p>
-              <p className="text-base font-medium text-gray-800">{ride?.destination?.location}</p>
+              <p className="text-base font-medium text-gray-800">
+                {ride?.destination?.location || 'Destination Address'}
+              </p>
             </div>
           </div>
-        </div>
-        
-        <div className="bg-green-300 p-3 rounded-full mt-4">
-          <button
-          onClick={()=>(submithandler())}
-          type="button" className="text-xl font-bold flex items-center ml-18 gap-2">
-            END RIDE
-          </button>
         </div>
       </div>
     </div>
   );
 }
 
-export default GoToDestination;
+export default UserFinalRide;

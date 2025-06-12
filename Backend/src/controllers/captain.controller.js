@@ -408,6 +408,11 @@ const completeRide = asyncHandler(async(req,res)=>{
         throw new ApiError(404, "Ride not found or already accepted");
     }
 
+    const user_id = ride?.user;
+    const user = await User.findById(user_id);
+    const socket_id = user?.socketId;
+
+
     // Update the ride with the captain and status
     const updatedRide = await Ride.findByIdAndUpdate(
         rideId,
@@ -420,6 +425,10 @@ const completeRide = asyncHandler(async(req,res)=>{
         },
         { new: true }
     );
+
+    sendMessageToSocket(socket_id, {
+        type: "ride_end",
+    });
 
     return res.status(200).json(
         new ApiResponse(
@@ -498,7 +507,6 @@ const getuserdata = asyncHandler(async (req, res) => {
 });
 
 const sendlocation = asyncHandler(async (req,res)=>{
-    console.log("hello");
     const socket_id = req?.body?.socket_id;
     const location = req?.body?.location;
     if(!socket_id || !location){
