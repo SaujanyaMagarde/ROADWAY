@@ -1,26 +1,39 @@
 import React, { useState } from 'react';
 import { Star, MessageCircle, Phone, Shield, Clock, MapPin, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch,useSelector } from 'react-redux';
+import {logout} from "../Store/CaptainSlice.jsx";
+import axios from 'axios';
+
 const CaptainProfilePage = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState('info');
-  
+  const data = useSelector((state)=>state.captainauth.captaindata);
+  console.log(data);
   // Sample captain data
   const captain = {
-    name: "Michael Johnson",
-    rating: 4.8,
-    reviews: 342,
-    trips: 1583,
-    experience: "3 years",
-    car: "Toyota Camry",
-    plate: "XYZ 123",
+    name: data?.fullname?.firstname,
+    car: data?.vehicle?.vehicleType,
+    plate: data?.vehicle?.plate,
     languages: ["English", "Spanish"],
     about: "Professional driver with excellent knowledge of city routes. Always aim to provide a comfortable and safe ride for all passengers.",
-    photo: "/api/placeholder/150/150"
+    photo: data?.avatar,
   };
 
-  const submitlogout = ()=>{
-    console.log("hi")
+  const submitlogout = async()=>{
+    try {
+      const res = await axios.get(import.meta.env.VITE_CAPTAIN_LOGOUT,{
+        withCredentials: true, // ✅ Allow sending cookies
+        headers: {
+          "Content-Type": "application/json", // ✅ JSON format
+        },
+      });
+    } catch (error) {
+      console.log(error);
+    }
+    dispatch(logout());
+    navigate('/captain-login')
   }
 
   return (
@@ -51,120 +64,7 @@ const CaptainProfilePage = () => {
         </div>
         <div className="ml-4">
           <h2 className="text-xl font-semibold">{captain.name}</h2>
-          <div className="flex items-center mt-1">
-            <Star size={16} className="text-yellow-500 fill-yellow-500" />
-            <span className="ml-1 text-gray-700">{captain.rating}</span>
-            <span className="mx-1 text-gray-400">•</span>
-            <span className="text-gray-500">{captain.reviews} reviews</span>
-          </div>
-          <div className="mt-1 text-gray-500">
-            {captain.car} • {captain.plate}
-          </div>
         </div>
-      </div>
-
-      {/* Tabs */}
-      <div className="flex border-b bg-white">
-        <button 
-          className={`flex-1 py-3 text-center ${activeTab === 'info' ? 'text-blue-600 border-b-2 border-blue-600 font-medium' : 'text-gray-500'}`}
-          onClick={() => setActiveTab('info')}
-        >
-          Information
-        </button>
-        <button 
-          className={`flex-1 py-3 text-center ${activeTab === 'reviews' ? 'text-blue-600 border-b-2 border-blue-600 font-medium' : 'text-gray-500'}`}
-          onClick={() => setActiveTab('reviews')}
-        >
-          Reviews
-        </button>
-      </div>
-
-      {/* Tab Content */}
-      <div className="flex-1 overflow-y-auto">
-        {activeTab === 'info' && (
-          <div className="bg-white">
-            <div className="p-4 border-b">
-              <h3 className="font-medium mb-2">About</h3>
-              <p className="text-gray-600">{captain.about}</p>
-            </div>
-
-            <div className="p-4 border-b">
-              <div className="flex justify-between items-center mb-3">
-                <div className="flex items-center">
-                  <Clock size={18} className="text-gray-500" />
-                  <span className="ml-3 text-gray-700">Experience</span>
-                </div>
-                <span className="text-gray-600">{captain.experience}</span>
-              </div>
-              
-              <div className="flex justify-between items-center mb-3">
-                <div className="flex items-center">
-                  <MapPin size={18} className="text-gray-500" />
-                  <span className="ml-3 text-gray-700">Total Trips</span>
-                </div>
-                <span className="text-gray-600">{captain.trips}</span>
-              </div>
-
-              <div className="flex justify-between items-center">
-                <div className="flex items-center">
-                  <Shield size={18} className="text-gray-500" />
-                  <span className="ml-3 text-gray-700">Languages</span>
-                </div>
-                <span className="text-gray-600">{captain.languages.join(", ")}</span>
-              </div>
-            </div>
-
-            <div className="p-4">
-              <h3 className="font-medium mb-3">Contact</h3>
-              
-              <button className="flex items-center justify-between w-full p-3 mb-2 bg-gray-100 rounded-lg">
-                <div className="flex items-center">
-                  <MessageCircle size={18} className="text-gray-500" />
-                  <span className="ml-3 text-gray-700">Message</span>
-                </div>
-                <ChevronRight size={18} className="text-gray-500" />
-              </button>
-              
-              <button className="flex items-center justify-between w-full p-3 bg-gray-100 rounded-lg">
-                <div className="flex items-center">
-                  <Phone size={18} className="text-gray-500" />
-                  <span className="ml-3 text-gray-700">Call</span>
-                </div>
-                <ChevronRight size={18} className="text-gray-500" />
-              </button>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'reviews' && (
-          <div className="bg-white p-4">
-            {/* Sample reviews */}
-            {[1, 2, 3].map((item) => (
-              <div key={item} className="mb-4 pb-4 border-b last:border-b-0">
-                <div className="flex items-center mb-2">
-                  <img 
-                    src="/api/placeholder/40/40" 
-                    alt="User" 
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
-                  <div className="ml-3">
-                    <div className="font-medium">User {item}</div>
-                    <div className="text-xs text-gray-500">March {item + 10}, 2025</div>
-                  </div>
-                  <div className="ml-auto flex items-center">
-                    <Star size={14} className="text-yellow-500 fill-yellow-500" />
-                    <span className="ml-1 text-sm">{4.5 + item * 0.1}</span>
-                  </div>
-                </div>
-                <p className="text-gray-600 text-sm">
-                  {item === 1 && "Great experience! The captain was very professional and got me to my destination quickly."}
-                  {item === 2 && "Very clean car and pleasant conversation. Would ride again!"}
-                  {item === 3 && "Prompt, courteous, and took the fastest route. Excellent service overall."}
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* Action Button */}

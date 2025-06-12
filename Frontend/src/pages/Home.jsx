@@ -147,10 +147,6 @@ function Home() {
       });
     }
   },[LookingforDriverPanel])
-
-
-
-
   
   return (
     <div className="h-screen relative"> {/* Fixed className (was 'h-screen' relative) */}

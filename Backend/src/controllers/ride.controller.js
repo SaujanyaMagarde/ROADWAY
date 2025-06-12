@@ -7,14 +7,61 @@ import { User } from '../models/user.model.js';
 import {Ride} from '../models/ride.model.js';
 
 
-// const del =async()=>{
-//   await Ride.deleteMany({});
-// }
+async function deleteExpiredRides() {
+  try {
+    const now = new Date();
+    
+    const result = await Ride.deleteMany({
+      $or: [
+        // Rides that took more than 3 minutes from pending to accepted
+        {
+          status: "accepted",
+          pendingTime: { $exists: true },
+          acceptedTime: { $exists: true },
+          $expr: {
+            $gt: [
+              { $subtract: ["$acceptedTime", "$pendingTime"] },
+              180000 // 3 minutes in milliseconds
+            ]
+          }
+        },
+        // Rides in accepted status for more than 1 hour
+        {
+          status: "accepted",
+          acceptedTime: { $exists: true },
+          $expr: {
+            $gt: [
+              { $subtract: [now, "$acceptedTime"] },
+              3600000 // 1 hour in milliseconds
+            ]
+          }
+        },
+        // Rides in ongoing status for more than 5 hours
+        {
+          status: "ongoing",
+          ongoingTime: { $exists: true },
+          $expr: {
+            $gt: [
+              { $subtract: [now, "$ongoingTime"] },
+              18000000 // 5 hours in milliseconds
+            ]
+          }
+        }
+      ]
+    });
+    
+    console.log(`Deleted ${result.deletedCount} expired rides`);
+    return result.deletedCount;
+    
+  } catch (error) {
+    console.error('Error deleting rides:', error);
+    throw error;
+  }
+}
 
-// del();
 
 const createRide = asyncHandler(async (req, res) => {
-
+    
     if(!req.user || !req.user._id){
         throw new ApiError("unauthorised request");
     }
@@ -90,11 +137,9 @@ const deleteRide = asyncHandler(async (req, res) => {
   );
 });
 
-
-
-
 export {
     createRide,
     deleteRide,
+    deleteExpiredRides,
 }
 

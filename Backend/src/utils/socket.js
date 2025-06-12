@@ -14,7 +14,7 @@ export const initializeSocket = (server) => {
     });
 
     io.on('connection', (socket) => {
-        console.log('A user connected:', socket.id);
+        // console.log('A user connected:', socket.id);
 
         socket.on('join',async(data)=>{
             const {userId,userType} = data;
@@ -36,7 +36,7 @@ export const initializeSocket = (server) => {
         })
         
         socket.on('disconnect',async () => {
-            console.log('User disconnected:', socket.id);
+            // console.log('User disconnected:', socket.id);
 
             try {
                 // Clear socketId on disconnect (optional cleanup)
@@ -52,10 +52,10 @@ export const initializeSocket = (server) => {
 };
 
 export const sendMessageToSocket = (socketId , message) => {
-    console.log(message);
+    // console.log(message);
     if (io) {
         io.to(socketId).emit('message',message);
-        console.log(`📤 Message sent to socket ${socketId}`, message);
+        // console.log(`📤 Message sent to socket ${socketId}`, message);
     }
     else{
         console.log('socket is not initialize')

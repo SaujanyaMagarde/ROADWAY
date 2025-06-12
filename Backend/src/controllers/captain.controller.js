@@ -7,6 +7,9 @@ import { Captain } from '../models/captain.model.js';
 import { Ride } from '../models/ride.model.js';
 import { getIO,sendMessageToSocket } from '../utils/socket.js';
 import {User} from '../models/user.model.js'
+import { deleteExpiredRides} from './ride.controller.js';
+import {DB_NAME} from "../constant.js";
+
 const registerCaptain = asyncHandler(async (req, res) => {
     const { firstname, lastname, email, password, mobile_no, color, plate, capacity, vehicleType } = req.body;
 
@@ -197,6 +200,7 @@ const getProfileCaptain = asyncHandler(async (req,res)=>{
 });
 
 const getride = asyncHandler(async (req, res) => {
+    deleteExpiredRides();
     if (!req.captain || !req.captain._id) {
         throw new ApiError(401, "Unauthorized request");
     }
@@ -541,7 +545,6 @@ const sendrideinfo = asyncHandler(async(req,res)=>{
         )
     );
 })
-
 
 export { 
     registerCaptain,
