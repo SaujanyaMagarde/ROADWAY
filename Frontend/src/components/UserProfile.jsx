@@ -31,6 +31,10 @@ const UserProfile = () => {
     navigate('/user-login')
   }
 
+  function gotoride(){
+    navigate('/user-ridestart');
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800">
       {/* Header */}
@@ -91,6 +95,16 @@ const UserProfile = () => {
                   <User className="h-5 w-5 text-gray-600" />
                 </div>
                 <p className="font-medium">Personal Information</p>
+              </div>
+              <ChevronRight className="h-5 w-5 text-gray-400" />
+            </div>
+
+            <div className="flex items-center justify-between py-2">
+              <div className="flex items-center">
+                <div className="bg-gray-100 p-2 rounded-full mr-3">
+                  <User className="h-5 w-5 text-gray-600" />
+                </div>
+                <p className="font-medium" onClick={()=>(gotoride())}>on-going ride</p>
               </div>
               <ChevronRight className="h-5 w-5 text-gray-400" />
             </div>

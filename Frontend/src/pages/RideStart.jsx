@@ -27,7 +27,7 @@ function RideStart() {
   const user = useSelector((state) => state.captainauth.userdata);
   const isConnected = useSelector((state) => state.socket.connected);
   const captain_id = useSelector((state)=>(state.captainauth.captaindata._id));
-  const socket_id = user.socket_id;
+  const socket_id = user?.socket_id;
   const [isFullHeight, setIsFullHeight] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

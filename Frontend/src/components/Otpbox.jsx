@@ -14,7 +14,7 @@ function Otpbox({user}) {
   const ride = useSelector((state) => (state.captainauth.rideData));
   const navigate = useNavigate();
   const rideId = ride?._id;
-  const socket_id = user.socketId;
+  const socket_id = user?.socketId;
 
   const handleSubmit = async (e) => {
   e.preventDefault();
