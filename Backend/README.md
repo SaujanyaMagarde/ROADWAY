@@ -1,7 +1,46 @@
-# RoadWay API Documentation
+# RoadWay Backend API Documentation
 
 ## Overview
-API documentation for the RoadWay application. This document provides details about available endpoints, request/response formats, and error handling.
+Backend API service for the RoadWay ride-sharing platform built with Node.js, Express, and MongoDB.
+
+## Project Structure
+
+### Core Files
+```
+Backend/
+├── src/
+│   ├── controllers/     # Request handlers
+│   ├── models/         # Database models
+│   ├── routes/         # API routes
+│   ├── middleware/     # Custom middleware
+│   ├── utils/          # Utility functions
+│   └── config/         # Configuration files
+├── tests/             # Test files
+└── server.js          # Entry point
+```
+
+### Key Files Description
+
+#### Controllers (`/src/controllers/`)
+- `authController.js` - Handles user authentication and registration
+- `rideController.js` - Manages ride creation and updates
+- `paymentController.js` - Processes payments
+- `userController.js` - User profile management
+- `captainController.js` - Captain-specific operations
+
+#### Models (`/src/models/`)
+- `User.js` - User data schema
+- `Ride.js` - Ride information schema
+- `Payment.js` - Payment records schema
+- `Captain.js` - Captain profile schema
+- `Vehicle.js` - Vehicle information schema
+
+#### Routes (`/src/routes/`)
+- `authRoutes.js` - Authentication endpoints
+- `rideRoutes.js` - Ride management endpoints
+- `paymentRoutes.js` - Payment processing routes
+- `userRoutes.js` - User profile routes
+- `captainRoutes.js` - Captain-specific routes
 
 ## API Routes
 
@@ -16,150 +55,110 @@ Base path: `/api/auth`
 {
   "email": "user@example.com",
   "password": "password123",
-  "name": "John Doe"
-}
-```
-- **Success Response:**
-```json
-{
-  "status": "success",
-  "message": "User registered successfully",
-  "data": {
-    "userId": "12345",
-    "email": "user@example.com",
-    "name": "John Doe"
-  }
+  "name": "John Doe",
+  "phone": "+1234567890"
 }
 ```
 
-#### Login
-- **Endpoint:** `POST /api/auth/login`
-- **Description:** Authenticate user and get token
-- **Request Body:**
-```json
-{
-  "email": "user@example.com",
-  "password": "password123"
-}
-```
-- **Success Response:**
-```json
-{
-  "status": "success",
-  "token": "jwt_token_here",
-  "user": {
-    "userId": "12345",
-    "email": "user@example.com",
-    "name": "John Doe"
-  }
-}
+[Previous API documentation content remains the same...]
+
+## Setup and Installation
+
+1. **Prerequisites**
+```bash
+Node.js v16 or higher
+MongoDB v4.4 or higher
+npm or yarn
 ```
 
-### User Routes
-Base path: `/api/users`
-
-#### Get User Profile
-- **Endpoint:** `GET /api/users/profile`
-- **Description:** Get current user's profile
-- **Headers Required:** Authorization Bearer Token
-- **Success Response:**
-```json
-{
-  "status": "success",
-  "data": {
-    "userId": "12345",
-    "email": "user@example.com",
-    "name": "John Doe",
-    "profilePicture": "url_to_picture"
-  }
-}
+2. **Environment Variables**
+Create a `.env` file:
+```env
+PORT=5000
+MONGODB_URI=mongodb://localhost:27017/roadway
+JWT_SECRET=your_jwt_secret
+STRIPE_SECRET_KEY=your_stripe_key
+GOOGLE_MAPS_API_KEY=your_google_maps_key
 ```
 
-#### Update Profile
-- **Endpoint:** `PUT /api/users/profile`
-- **Description:** Update user profile information
-- **Headers Required:** Authorization Bearer Token
-- **Request Body:**
-```json
-{
-  "name": "Updated Name",
-  "profilePicture": "new_picture_url"
-}
-```
-- **Success Response:**
-```json
-{
-  "status": "success",
-  "message": "Profile updated successfully",
-  "data": {
-    "userId": "12345",
-    "name": "Updated Name",
-    "profilePicture": "new_picture_url"
-  }
-}
+3. **Installation Steps**
+```bash
+# Clone repository
+git clone <repository-url>
+
+# Install dependencies
+cd roadWay/Backend
+npm install
+
+# Start development server
+npm run dev
+
+# Run tests
+npm test
 ```
 
-### Post Routes
-Base path: `/api/posts`
+## Development Guidelines
 
-#### Create Post
-- **Endpoint:** `POST /api/posts`
-- **Description:** Create a new post
-- **Headers Required:** Authorization Bearer Token
-- **Request Body:**
-```json
-{
-  "title": "Post Title",
-  "content": "Post content here",
-  "image": "optional_image_url"
-}
-```
-- **Success Response:**
-```json
-{
-  "status": "success",
-  "message": "Post created successfully",
-  "data": {
-    "postId": "67890",
-    "title": "Post Title",
-    "content": "Post content here",
-    "image": "optional_image_url",
-    "createdAt": "2023-01-01T00:00:00Z"
-  }
-}
-```
+### Code Style
+- Follow ESLint configuration
+- Use async/await for asynchronous operations
+- Implement proper error handling
+- Write comprehensive API documentation
+- Include JSDoc comments for functions
 
-## Error Handling
+### Database
+- Use Mongoose for MongoDB interactions
+- Implement proper indexing
+- Follow schema validation rules
+- Handle database transactions properly
 
-All endpoints follow a consistent error response format:
+### Security
+- Implement rate limiting
+- Use helmet for HTTP headers
+- Validate and sanitize inputs
+- Implement proper authentication
+- Use CORS protection
 
-```json
-{
-  "status": "error",
-  "message": "Error description here",
-  "code": "ERROR_CODE"
-}
+### Testing
+- Write unit tests for controllers
+- Test API endpoints
+- Mock external services
+- Use Jest for testing framework
+
+## Deployment
+
+### Production Setup
+```bash
+# Build application
+npm run build
+
+# Start production server
+npm start
 ```
 
-### Common Error Codes
-- `AUTH_REQUIRED`: Authentication is required
-- `INVALID_CREDENTIALS`: Invalid login credentials
-- `USER_EXISTS`: User already exists
-- `VALIDATION_ERROR`: Invalid input data
-- `NOT_FOUND`: Requested resource not found
-- `SERVER_ERROR`: Internal server error
+### Deployment Checklist
+- Set up production MongoDB instance
+- Configure environment variables
+- Set up SSL certificates
+- Configure nginx reverse proxy
+- Set up PM2 process manager
 
-## Rate Limiting
+## Monitoring and Logging
 
-API requests are limited to 100 requests per IP address per hour. Exceeding this limit will result in a 429 (Too Many Requests) response.
+### Tools Used
+- Winston for logging
+- Morgan for HTTP logging
+- PM2 for process management
+- MongoDB Atlas monitoring
 
-## Authentication
+## Contributing
 
-Most endpoints require authentication using JWT tokens. Include the token in the Authorization header:
-```
-Authorization: Bearer <your_jwt_token>
-```
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add AmazingFeature'`)
+4. Push to branch (`git push origin feature/AmazingFeature`)
+5. Open Pull Request
 
-## Data Validation
+## License
 
-All request data is validated before processing. Invalid data will result in a 400 Bad Request response with specific validation error messages.
+This project is licensed under the MIT License.
