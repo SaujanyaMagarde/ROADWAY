@@ -546,10 +546,32 @@ const sendrideinfo = asyncHandler(async(req,res)=>{
     );
 })
 
+const fetchOngoingRides = asyncHandler(async (req, res) => {
+    if (!req.captain || !req.captain._id) {
+        throw new ApiError(401, "Unauthorized request");
+    }
+
+    const captainId = req.captain._id;
+
+    const ride = await Ride.findOne({
+      captain: captainId,
+  status: { $in: ['pending', 'accepted', 'ongoing'] }
+}).sort({ createdAt: -1 });
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            "rides fetched successfully",
+            ride
+        )
+    );
+});
+
 export { 
     registerCaptain,
     loginCaptain,
     logoutCaptain,
+    fetchOngoingRides,
     getProfileCaptain,
     getride,
     acceptRide,

@@ -51,7 +51,7 @@ function Otpbox({user}) {
 
       console.log(res1);
 
-      navigate('/captain-endjurney');
+      navigate('/captain-ongoing-rides');
   } catch (error) {
       console.log(error);
   }

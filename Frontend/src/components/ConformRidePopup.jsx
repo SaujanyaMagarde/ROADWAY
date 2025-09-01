@@ -23,11 +23,11 @@ function ConformRidePopup({ setridePopup, setConformRide, confromDetails,setpick
         params: { rideId },
         withCredentials: true,
       });
-  
+
       console.log("Ride accepted:", res.data.data);
       setpickupride(res.data.data);
       dispatch(fillride(res.data.data));
-      navigate('/captain-ridestart');
+      navigate('/captain-ongoing-rides');
     } catch (error) {
       console.error("Error accepting ride:", error);
       alert("Failed to accept ride. Please try again.");

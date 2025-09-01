@@ -8,14 +8,14 @@ import GoToPickup from '../components/GoToPickup';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import axios from 'axios';
-import { filluser } from '../Store/CaptainSlice.jsx';
+import { filluser,fillride } from '../Store/CaptainSlice.jsx';
 import {socket} from '../Store/SocketSlice.jsx';
 import { initializeSocket } from '../Store/SocketSlice.jsx';
 import { setConnected } from '../Store/SocketSlice.jsx';
 import { store } from '../Store/Store.jsx';
 import Otpbox from '../components/Otpbox.jsx';
 
-function RideStart() {
+function RideStart({status=null,details=null}) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const gotopickRef = useRef(null);
@@ -32,6 +32,10 @@ function RideStart() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [routePolyline, setRoutePolyline] = useState(null);
+
+  if(status == "accepted" && details){
+    dispatch(fillride(details));
+  }
 
 
   const fetchUserData = async () => {

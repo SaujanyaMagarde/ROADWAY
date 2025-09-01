@@ -8,13 +8,14 @@ import GoToDestination from '../components/GoToDestination.jsx';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import axios from 'axios';
-import { filluser } from '../Store/CaptainSlice.jsx';
+import { filluser,fillride } from '../Store/CaptainSlice.jsx';
 import {socket} from '../Store/SocketSlice.jsx';
 import { initializeSocket } from '../Store/SocketSlice.jsx';
 import { setConnected } from '../Store/SocketSlice.jsx';
 import { store } from '../Store/Store.jsx';
 
-function CaptainendJurny() {
+function CaptainendJurny({status=null,details=null}) {
+  console.log(details);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const gotopickRef = useRef(null);
@@ -25,6 +26,9 @@ function CaptainendJurny() {
   const [error, setError] = useState(null);
   const [routePolyline, setRoutePolyline] = useState(null);
 
+  if(status == "ongoing" && details){
+    dispatch(fillride(details));
+  }
 
   const fetchUserData = async () => {
     if (!ride?.user) {
