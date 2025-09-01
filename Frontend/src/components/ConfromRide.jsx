@@ -2,8 +2,9 @@ import React from 'react';
 import logo from '../picture/logo.png';
 import 'remixicon/fonts/remixicon.css';
 import axios from 'axios';
-
+import { useNavigate } from 'react-router-dom';
 function ConfirmRide({ setconfromRidePanel, setLookingforDriverPanel, conformDetails }) {
+  const navigate = useNavigate();
   if (!conformDetails) {
     return <h1>Loading...</h1>;
   }
@@ -28,7 +29,7 @@ function ConfirmRide({ setconfromRidePanel, setLookingforDriverPanel, conformDet
         },
       });
       console.log(res);
-      setLookingforDriverPanel(true);
+      navigate('/user-ongoing-rides');
     } catch (error) {
       console.log(error);
       alert('Something went wrong');

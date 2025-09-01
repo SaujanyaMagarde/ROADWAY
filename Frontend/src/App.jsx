@@ -18,6 +18,7 @@ import Todestination from './components/Todestination.jsx'
 import UserRide from './pages/UserRide.jsx'
 import CaptainendJurny from './pages/CaptainendJurny.jsx'
 import UserEndJourney from './pages/UserEndJourney.jsx'
+import OnGoing from './pages/onGoing.jsx'
 function App() {
   return (
     <div>
@@ -35,9 +36,10 @@ function App() {
         <Route path='/captain-profile' element={<CaptainProtectecdWrapper><CaptainProfilePage/></CaptainProtectecdWrapper>} />
         <Route path='/captain-ridestart' element={<CaptainProtectecdWrapper><RideStart/></CaptainProtectecdWrapper>} />
         <Route path='/to-destination' element={<CaptainProtectecdWrapper><Todestination/></CaptainProtectecdWrapper>} />
-        <Route path='/user-ridestart' element={<UserProtectecdWrapper><UserRide/></UserProtectecdWrapper>}/>
+        {/* <Route path='/user-ridestart' element={<UserProtectecdWrapper><UserRide/></UserProtectecdWrapper>}/> */}
         <Route path='/captain-endjurney' element={<CaptainProtectecdWrapper><CaptainendJurny/></CaptainProtectecdWrapper>} />
-        <Route path='/UserEndJourney' element={<UserProtectecdWrapper><UserEndJourney/></UserProtectecdWrapper>}/>
+        {/* <Route path='/UserEndJourney' element={<UserProtectecdWrapper><UserEndJourney/></UserProtectecdWrapper>}/> */}
+        <Route path='/user-ongoing-rides' element={<UserProtectecdWrapper><OnGoing/></UserProtectecdWrapper>}/>
       </Routes>
     </div>
   )

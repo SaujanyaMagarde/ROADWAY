@@ -32,7 +32,7 @@ const UserProfile = () => {
   }
 
   function gotoride(){
-    navigate('/user-ridestart');
+    navigate('/user-ongoing-rides');
   }
 
   return (

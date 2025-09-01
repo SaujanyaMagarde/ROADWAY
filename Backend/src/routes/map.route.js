@@ -6,4 +6,5 @@ const MapRouter = Router();
 
 MapRouter.route("/map-routesearch").post(verifyJWTUser,searchRoute);
 
+
 export {MapRouter}

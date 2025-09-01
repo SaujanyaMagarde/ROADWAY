@@ -137,9 +137,31 @@ const deleteRide = asyncHandler(async (req, res) => {
   );
 });
 
+const fetchOngoingRides = asyncHandler(async (req, res) => {
+    if (!req.user || !req.user._id) {
+        throw new ApiError(401, "Unauthorized request");
+    }
+
+    const userId = req.user._id;
+
+    const ride = await Ride.findOne({
+      user: userId,
+  status: { $in: ['pending', 'accepted', 'ongoing'] }
+}).sort({ createdAt: -1 });
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            "rides fetched successfully",
+            ride
+        )
+    );
+});
+
 export {
     createRide,
     deleteRide,
     deleteExpiredRides,
+    fetchOngoingRides
 }
 

@@ -12,7 +12,7 @@ import { setConnected } from '../Store/SocketSlice.jsx';
 import { initializeSocket } from '../Store/SocketSlice.jsx';
 import { store } from '../Store/Store.jsx';
 
-function UserEndJourney() {
+function UserEndJourney({ status = null, details = null }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const gotodestRef = useRef(null);

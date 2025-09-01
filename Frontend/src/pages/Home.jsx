@@ -18,7 +18,10 @@ import { initializeSocket } from '../Store/SocketSlice.jsx';
 import { setConnected } from '../Store/SocketSlice.jsx';
 import { store } from '../Store/Store.jsx';
 import { rideStart } from '../Store/Authslice.jsx';
-function Home() {
+function Home({status = null, details = null }) {
+  console.log("Home component rendered with status:", status);
+  console.log("Ride details:", details);
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [routedetails, setroutedetails] = useState(null)
@@ -39,6 +42,13 @@ function Home() {
   const [LookingforDriverPanel, setLookingforDriverPanel] = useState(false)
   const [conformDetails, setconformDetails] = useState(null)
 
+  useEffect(() => {
+  if (status === "pending" && details) {
+    setLookingforDriverPanel(true);
+    setconformDetails(details);
+  }
+}, [status, details]);
+
   store.dispatch(initializeSocket());
   dispatch(setConnected(true));
 
@@ -58,7 +68,7 @@ function Home() {
           console.log(data);
           dispatch(rideStart(data));
           setLookingforDriverPanel(false);
-          navigate('/user-ridestart');
+          navigate('/user-ongoing-rides');
         }
         else if(data.type == "location-captain") {
           console.log("captain moved");
