@@ -69,7 +69,7 @@ function UserRide({ status = null, details = null }) {
           setdriverlocation(data.location);
         }
         if (data.type === 'customer_picked') {
-          navigate('/user-ongoing-rides');
+          navigate(0);
         }
       };
 

@@ -1,7 +1,7 @@
 import {Router} from "express";
 import {upload} from "../middlewares/multer.middleware.js"
 import {verifyJWTCaptain} from '../middlewares/captainauth.middleware.js'
-import { loginCaptain, logoutCaptain, registerCaptain , getProfileCaptain, getride, acceptRide, startJurny, completeRide, getHistory, sendOtp, getuserdata, sendlocation, sendrideinfo,fetchOngoingRides } from "../controllers/captain.controller.js";
+import { loginCaptain, logoutCaptain, registerCaptain , getProfileCaptain, getride, acceptRide, startJurny, completeRide, getHistory, sendOtp, getuserdata, sendlocation, sendrideinfo,fetchOngoingRides, getCaptainhistory } from "../controllers/captain.controller.js";
 
 
 const CaptainRouter = Router();
@@ -40,5 +40,7 @@ CaptainRouter.route("/captain-sendlocation").post(verifyJWTCaptain,sendlocation)
 CaptainRouter.route("/captain-picked-customer").post(verifyJWTCaptain,sendrideinfo);
 
 CaptainRouter.route("/captain-fetch-ongoing-rides").get(verifyJWTCaptain,fetchOngoingRides);
+
+CaptainRouter.route("/captain-ridehistory").get(verifyJWTCaptain,getCaptainhistory)
 
 export {CaptainRouter}

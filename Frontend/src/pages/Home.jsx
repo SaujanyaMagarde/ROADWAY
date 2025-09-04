@@ -69,15 +69,15 @@ function Home({status = null, details = null }) {
           console.log(data);
           dispatch(rideStart(data));
           setLookingforDriverPanel(false);
-          navigate('/user-ongoing-rides');
+          navigate(0);
         }
-        else if(data.type == "location-captain") {
-          console.log("captain moved");
-        }
-        else if(data.type == "captain_location"){
-          console.log("driver location fetched");
-          console.log(data)
-        }
+        // else if(data.type == "location-captain") {
+        //   console.log("captain moved");
+        // }
+        // else if(data.type == "captain_location"){
+        //   console.log("driver location fetched");
+        //   console.log(data)
+        // }
       };
       socket.on("message", handleMessage);
       return () => {

@@ -242,12 +242,36 @@ const getrideinfo = asyncHandler(async (req, res) => {
   );
 });
 
-export { 
+const gethistory = asyncHandler(async (req, res) => {
+  const userId = req.user._id;
+
+  if (!userId) {
+    throw new ApiError(401, "user not found please signup");
+  }
+
+  const history = await Ride.find({
+    user: userId,
+    status: "completed",
+  });
+
+  if (!history) {
+    throw new ApiError(404, "no ride history found");
+  }
+
+  return res.status(200).json(
+    new ApiResponse(200, "ride history fetched successfully", {
+      history,
+    })
+  );
+});
+
+export {
     registerUser ,
     loginUser,
     logoutUser,
     getProfile,
     getOtp,
     getcaptaindata,
-    getrideinfo
+    getrideinfo,
+    gethistory
 };

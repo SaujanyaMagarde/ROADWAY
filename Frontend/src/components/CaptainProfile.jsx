@@ -1,42 +1,75 @@
-import React, { useState } from 'react';
-import { Car, MapPin, Calendar, Star, Clock, Settings, ChevronRight, Edit, Camera, LogOut } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useState } from "react";
+import {
+  Car,
+  Clock,
+  ChevronRight,
+  Edit,
+  Camera,
+  LogOut,
+  User,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../Store/CaptainSlice.jsx";
-import axios from 'axios';
+import axios from "axios";
 
 const CaptainProfile = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const data = useSelector((state) => state.captainauth.captaindata);
 
-  const [captainData, setCaptainData] = useState({
-    name: data?.fullname?.firstname,
-    email: data?.email,
-    phone: data?.mobile_no,
-    car: data?.vehicle?.vehicleType,
-    plate: data?.vehicle?.plate,
-    avatar: data?.avatar,
-    joinDate: data?.createdAt,
+  // Extract data safely with fallbacks
+  const [captainData] = useState({
+    name: data?.fullname?.firstname || "N/A",
+    email: data?.email || "N/A",
+    phone: data?.mobile_no || "N/A",
+    car: data?.vehicle?.vehicleType || "N/A",
+    plate: data?.vehicle?.plate || "N/A",
+    avatar: data?.avatar || "https://via.placeholder.com/150",
+    joinDate: data?.createdAt
+      ? new Date(data.createdAt).toLocaleDateString()
+      : "N/A",
   });
 
+  const [ride, setRide] = useState(null);
+  const [showHistory, setShowHistory] = useState(false);
+  const [showInfo, setShowInfo] = useState(false);
+
+  // Logout
   const submithandler = async () => {
     try {
       await axios.get(import.meta.env.VITE_CAPTAIN_LOGOUT, {
         withCredentials: true,
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
       });
     } catch (error) {
       console.log(error);
     }
     dispatch(logout());
-    navigate('/captain-login');
+    navigate("/captain-login");
+  };
+
+  // Fetch Ride History (with toggle)
+  const submithand = async () => {
+    if (showHistory) {
+      setShowHistory(false);
+      return;
+    }
+    try {
+      const res = await axios.get(import.meta.env.VITE_CAPTAIN_RIDE_HISTORY, {
+        withCredentials: true,
+        headers: { "Content-Type": "application/json" },
+      });
+      const ridedata = res?.data?.data?.history || [];
+      setRide(ridedata);
+      setShowHistory(true);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   function gotoRide() {
-    navigate('/captain-ongoing-rides');
+    navigate("/captain-ongoing-rides");
   }
 
   return (
@@ -45,7 +78,7 @@ const CaptainProfile = () => {
       <div className="bg-black text-white p-4 flex justify-between items-center">
         <h1 className="text-xl font-bold">Captain Profile</h1>
         <i
-          onClick={() => navigate('/captain-home')}
+          onClick={() => navigate("/captain-home")}
           className="ri-arrow-go-back-line cursor-pointer"
         ></i>
       </div>
@@ -86,7 +119,7 @@ const CaptainProfile = () => {
             <p className="text-xs text-gray-500">Plate</p>
           </div>
           <div className="p-4 text-center">
-            <p className="text-xl font-bold">{captainData.joinDate}</p>
+            <p className="text-sm font-bold">{captainData.joinDate}</p>
             <p className="text-xs text-gray-500">Joined</p>
           </div>
         </div>
@@ -95,45 +128,63 @@ const CaptainProfile = () => {
       {/* Menu Items */}
       <div className="bg-white rounded-xl mx-4 mt-4 shadow-md">
         <div className="divide-y">
-          {/* Account Settings */}
           <div className="p-4">
-            <h3 className="text-sm font-semibold text-gray-500 mb-3">ACCOUNT</h3>
+            <h3 className="text-sm font-semibold text-gray-500 mb-3">
+              ACCOUNT
+            </h3>
 
-            <div className="flex items-center justify-between py-2">
+            {/* Personal Info Toggle */}
+            <div
+              className="flex items-center justify-between py-2 cursor-pointer"
+              onClick={() => setShowInfo((prev) => !prev)}
+            >
               <div className="flex items-center">
                 <div className="bg-gray-100 p-2 rounded-full mr-3">
-                  <Car className="h-5 w-5 text-gray-600" />
+                  <User className="h-5 w-5 text-gray-600" />
                 </div>
-                <p className="font-medium">Vehicle Information</p>
+                <p className="font-medium">Personal Information</p>
               </div>
-              <ChevronRight className="h-5 w-5 text-gray-400" />
+              <ChevronRight
+                className={`h-5 w-5 text-gray-400 transition-transform ${
+                  showInfo ? "rotate-90" : ""
+                }`}
+              />
             </div>
 
+            {/* On-going Ride */}
             <div className="flex items-center justify-between py-2">
               <div className="flex items-center">
                 <div className="bg-gray-100 p-2 rounded-full mr-3">
                   <Clock className="h-5 w-5 text-gray-600" />
                 </div>
-                <p className="font-medium" onClick={gotoRide}>
+                <p className="font-medium cursor-pointer" onClick={gotoRide}>
                   On-going Ride
                 </p>
               </div>
               <ChevronRight className="h-5 w-5 text-gray-400" />
             </div>
 
-            <div className="flex items-center justify-between py-2">
+            {/* Trip History */}
+            <div
+              className="flex items-center justify-between py-2 cursor-pointer"
+              onClick={submithand}
+            >
               <div className="flex items-center">
                 <div className="bg-gray-100 p-2 rounded-full mr-3">
-                  <Star className="h-5 w-5 text-gray-600" />
+                  <Car className="h-5 w-5 text-gray-600" />
                 </div>
                 <p className="font-medium">Trip History</p>
               </div>
-              <ChevronRight className="h-5 w-5 text-gray-400" />
+              <ChevronRight
+                className={`h-5 w-5 text-gray-400 transition-transform ${
+                  showHistory ? "rotate-90" : ""
+                }`}
+              />
             </div>
           </div>
 
           {/* Logout */}
-          <div onClick={submithandler} className="p-4">
+          <div onClick={submithandler} className="p-4 cursor-pointer">
             <div className="flex items-center py-2 text-red-500">
               <div className="bg-red-50 p-2 rounded-full mr-3">
                 <LogOut className="h-5 w-5 text-red-500" />
@@ -143,6 +194,60 @@ const CaptainProfile = () => {
           </div>
         </div>
       </div>
+
+      {/* Personal Info Section */}
+      {showInfo && (
+        <div className="bg-white rounded-xl mx-4 mt-4 shadow-md p-4">
+          <h3 className="text-lg font-semibold mb-4">Personal Details</h3>
+          <p>
+            <strong>Name:</strong> {captainData.name}
+          </p>
+          <p>
+            <strong>Email:</strong> {captainData.email}
+          </p>
+          <p>
+            <strong>Phone:</strong> {captainData.phone}
+          </p>
+        </div>
+      )}
+
+      {/* Ride History Section */}
+      {showHistory && ride && (
+        <div className="bg-white rounded-xl mx-4 mt-4 shadow-md p-4">
+          <h3 className="text-lg font-semibold mb-4">Completed Trips</h3>
+          {ride.length === 0 ? (
+            <p className="text-gray-500">No trips found.</p>
+          ) : (
+            <div className="space-y-4">
+              {ride.map((r, index) => (
+                <div
+                  key={r._id || index}
+                  className="border border-gray-200 rounded-lg shadow-sm p-4 hover:shadow-md transition"
+                >
+                  <p>
+                    <strong>From:</strong> {r?.pickup?.location || "N/A"}
+                  </p>
+                  <p>
+                    <strong>To:</strong> {r?.destination?.location || "N/A"}
+                  </p>
+                  <p>
+                    <strong>Date:</strong>{" "}
+                    {r?.createdAt
+                      ? new Date(r.createdAt).toLocaleString()
+                      : "N/A"}
+                  </p>
+                  <p>
+                    <strong>Status:</strong> {r?.status || "N/A"}
+                  </p>
+                  <p>
+                    <strong>Fare:</strong> ₹{r?.fare || "N/A"}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* App Version */}
       <div className="mt-6 mb-8 text-center text-xs text-gray-400">

@@ -48,8 +48,7 @@ function Otpbox({user}) {
           }
         }
       );
-      console.log(res1);
-      navigate('/captain-ongoing-rides');
+      navigate(0);
   } catch (error) {
       console.log(error);
   }

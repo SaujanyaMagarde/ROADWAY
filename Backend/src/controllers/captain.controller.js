@@ -567,6 +567,29 @@ const fetchOngoingRides = asyncHandler(async (req, res) => {
     );
 });
 
+const getCaptainhistory = asyncHandler(async (req, res) => {
+  const captainId = req.captain._id;
+
+  if (!captainId) {
+    throw new ApiError(401, "user not found please signup");
+  }
+
+  const history = await Ride.find({
+    captain: captainId,
+    status: "completed",
+  });
+
+  if (!history) {
+    throw new ApiError(404, "no ride history found");
+  }
+
+  return res.status(200).json(
+    new ApiResponse(200, "ride history fetched successfully", {
+      history,
+    })
+  );
+});
+
 export { 
     registerCaptain,
     loginCaptain,
@@ -581,5 +604,6 @@ export {
     sendOtp,
     getuserdata,
     sendlocation,
-    sendrideinfo
+    sendrideinfo,
+    getCaptainhistory
  };
