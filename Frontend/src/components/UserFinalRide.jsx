@@ -34,7 +34,6 @@ function UserFinalRide({ isFullHeight, setIsFullHeight, ride, user }) {
         userId: user._id,
         userType: "user",
       });
-      console.log("chalu");
 
       const handleMessage = (data) => {
         console.log("done",data);

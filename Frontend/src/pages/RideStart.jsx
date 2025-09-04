@@ -33,9 +33,11 @@ function RideStart({status=null,details=null}) {
   const [error, setError] = useState(null);
   const [routePolyline, setRoutePolyline] = useState(null);
 
-  if(status == "accepted" && details){
-    dispatch(fillride(details));
-  }
+  useEffect(() => {
+    if (status === "accepted" && details) {
+      dispatch(fillride(details));
+    }
+  }, [status, details, dispatch]);
 
 
   const fetchUserData = async () => {

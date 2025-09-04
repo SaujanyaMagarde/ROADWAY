@@ -19,8 +19,10 @@ function GoToDestination({ setgopick, isFullHeight, setIsFullHeight, ride, user,
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  store.dispatch(initializeSocket());
-  dispatch(setConnected(true));
+   useEffect(() => {
+    store.dispatch(initializeSocket());
+    dispatch(setConnected(true));
+  }, [dispatch]);
 
   const captain = useSelector((state) => state.captainauth.captaindata);
   const isConnected = useSelector((state) => state.socket.connected);

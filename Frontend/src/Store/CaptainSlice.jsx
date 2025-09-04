@@ -6,7 +6,8 @@ const initialState = {
     rideData :null,
     userdata : null,
 };
-  
+
+
 const captainauthSlice = createSlice({
   name: "captainauth",
   initialState,

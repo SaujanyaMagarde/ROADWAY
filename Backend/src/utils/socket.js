@@ -18,10 +18,9 @@ export const initializeSocket = (server) => {
 
         socket.on('join',async(data)=>{
             const {userId,userType} = data;
-
             try {
                 if(userType === 'user'){
-                    await User.findByIdAndUpdate(userId,{
+                    const res = await User.findByIdAndUpdate(userId,{
                         socketId : socket.id
                     });
                 }

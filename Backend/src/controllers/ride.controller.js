@@ -95,6 +95,10 @@ const createRide = asyncHandler(async (req, res) => {
         throw new ApiError("parameter of ride is missing to book a ride");
     }
 
+    await Ride.deleteMany({
+      user: userId,
+      status: { $in: ['pending', 'accepted', 'ongoing'] }
+    });
 
     const newRide = await Ride.create({
       user: userId,

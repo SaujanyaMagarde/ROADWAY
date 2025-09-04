@@ -99,7 +99,7 @@ function UserEndJourney({ status = null, details = null }) {
         <div className="flex items-center gap-3">
           <button
             className="p-2 bg-blue-600 text-white rounded-full shadow-md hover:bg-blue-700 transition-colors"
-            onClick={() => navigate('/captain-profile')}
+            onClick={() => navigate('/user-profile')}
             aria-label="Profile"
           >
             <i className="ri-user-line text-xl"></i>

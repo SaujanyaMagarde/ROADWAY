@@ -33,8 +33,10 @@ function UserRide({ status = null, details = null }) {
   const [userLocation, setUserLocation] = useState(null);
 
   // Initialize socket
-  store.dispatch(initializeSocket());
-  dispatch(setConnected(true));
+  useEffect(() => {
+    store.dispatch(initializeSocket());
+    dispatch(setConnected(true));
+  }, []);
 
   const user = useSelector((state) => state.auth.userdata);
   const isConnected = useSelector((state) => state.socket.connected);

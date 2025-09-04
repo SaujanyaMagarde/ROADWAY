@@ -61,6 +61,7 @@ function Home({status = null, details = null }) {
         userId: user._id,
         userType: "user",
       });
+      
       console.log("🧩 Emitted join event!", user._id, user.role);
 
       const handleMessage = (data) => {

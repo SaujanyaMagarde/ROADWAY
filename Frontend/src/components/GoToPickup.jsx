@@ -19,8 +19,10 @@ function GoToPickup({ setgopick, isFullHeight, setIsFullHeight, ride, user,setot
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  useEffect(() => {
   store.dispatch(initializeSocket());
   dispatch(setConnected(true));
+}, [dispatch]);
 
   const captain = useSelector((state) => state.captainauth.captaindata);
   const isConnected = useSelector((state) => state.socket.connected);
@@ -270,7 +272,7 @@ function GoToPickup({ setgopick, isFullHeight, setIsFullHeight, ride, user,setot
         
         <div className="bg-green-300 p-3 rounded-full mt-4">
           <button
-          onClick={()=>(submithandler())}
+          onClick={submithandler}
           type="button" className="text-xl font-bold flex items-center ml-18 gap-2">
             Pickup the customer
           </button>
