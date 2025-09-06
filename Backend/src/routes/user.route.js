@@ -2,7 +2,7 @@ import {Router} from "express";
 import {upload} from "../middlewares/multer.middleware.js"
 import {getcaptaindata, getOtp, getProfile, getrideinfo, loginUser, logoutUser, registerUser,gethistory} from "../controllers/user.controller.js"
 import { verifyJWTUser } from "../middlewares/userauth.middleware.js";
-import { createRide, deleteRide,fetchOngoingRides } from "../controllers/ride.controller.js";
+import { createRide, deleteRide,fetchOngoingRides, shareRide } from "../controllers/ride.controller.js";
 const UserRouter = Router();
 
 UserRouter.route("/user-register").post(
@@ -23,4 +23,5 @@ UserRouter.route('/user-get-captainData').post(verifyJWTUser,getcaptaindata);
 UserRouter.route('/user-getrideinfo').post(verifyJWTUser,getrideinfo);
 UserRouter.route('/user-ride').get(verifyJWTUser,fetchOngoingRides);
 UserRouter.route('/user-history').get(verifyJWTUser,gethistory);
+UserRouter.route('/user-share-ride').post(verifyJWTUser,shareRide);
 export {UserRouter}

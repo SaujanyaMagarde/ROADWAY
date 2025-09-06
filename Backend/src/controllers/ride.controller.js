@@ -5,7 +5,7 @@ import { asyncHandler } from '../utils/AsyncHandels.js';
 import { uploadResult } from '../utils/Cloudinary.js';
 import { User } from '../models/user.model.js';
 import {Ride} from '../models/ride.model.js';
-
+import {ShareRide} from '../models/shareRide.model.js';
 
 async function deleteExpiredRides() {
   try {
@@ -58,7 +58,6 @@ async function deleteExpiredRides() {
     throw error;
   }
 }
-
 
 const createRide = asyncHandler(async (req, res) => {
     
@@ -162,12 +161,71 @@ const fetchOngoingRides = asyncHandler(async (req, res) => {
     );
 });
 
+const shareRide = asyncHandler(async (req, res) => {
+  if (!req.user || !req.user._id) {
+    throw new ApiError(401, "unauthorised request");
+  }
+
+  const userId = req.user._id;
+
+  const {
+    pickup,
+    destination,
+    pickuptime,
+    date,
+    fare,
+    rideType,
+    duration,
+    distance,
+    polyline,
+  } = req.body;
+
+  // Create share ride
+  const newShareRide = await ShareRide.create({
+    createdBy: userId,
+    pickup: {
+      location: pickup.location,
+      coordinates: {
+        type: "Point",
+        coordinates: [pickup.lng, pickup.lat], // GeoJSON format [lng, lat]
+      },
+    },
+    destination: {
+      location: destination.location,
+      coordinates: {
+        type: "Point",
+        coordinates: [destination.lng, destination.lat],
+      },
+    },
+    departureTime: pickuptime,
+    deprtureDate : date,
+    fare,
+    rideType,
+    duration,
+    distance,
+    polyline,
+    signature: "@roadway#all$right&reserved#",
+    isPaid: false,
+    status: "open",
+  });
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      "ride shared successfully",
+      newShareRide
+    )
+  );
+});
+
+
 
 
 export {
     createRide,
     deleteRide,
     deleteExpiredRides,
-    fetchOngoingRides
+    fetchOngoingRides,
+    shareRide,
 }
 

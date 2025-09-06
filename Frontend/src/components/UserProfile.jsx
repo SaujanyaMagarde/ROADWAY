@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from "../Store/Authslice.jsx";
 import axios from 'axios';
+import { motion } from "framer-motion";
 
 const UserProfile = () => {
   const navigate = useNavigate();
@@ -86,6 +87,27 @@ const UserProfile = () => {
           </button>
         </div>
       </div>
+
+      <motion.div
+      initial={{ opacity: 0, y: 50, scale: 0.9 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className="w-full max-w-sm mx-auto p-6 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-2xl shadow-xl cursor-pointer hover:scale-105 transition-transform"
+      onClick={() => navigate("/user-find-buddy")}
+    >
+      <motion.p
+        className="text-lg font-semibold tracking-wide uppercase text-center"
+        whileHover={{ scale: 1.05 }}
+      >
+        TRY OUT OUR NEW FEATURE
+      </motion.p>
+      <motion.p
+        className="mt-3 text-2xl font-bold text-center"
+        whileHover={{ scale: 1.1, color: "#FFD700" }}
+      >
+        Find Buddy 🚀
+      </motion.p>
+    </motion.div>
 
       {/* Menu Items */}
       <div className="bg-white rounded-xl mx-4 mt-4 shadow-md">
