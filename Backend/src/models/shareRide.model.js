@@ -11,6 +11,7 @@ const shareRideSchema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Captain',
     },
+
     pickup: {
       location: {
         type: String,
@@ -23,39 +24,54 @@ const shareRideSchema = new Schema(
           default: 'Point',
         },
         coordinates: {
-          type: [Number], // [lng, lat]
+          type: [Number], // [longitude, latitude]
           required: true,
         },
       },
     },
+
     destination: {
       location: {
         type: String,
         required: true,
       },
-      lat: Number,
-      lng: Number,
+      coordinates: {
+        type: {
+          type: String,
+          enum: ['Point'],
+          default: 'Point',
+        },
+        coordinates: {
+          type: [Number], // [longitude, latitude]
+          required: true,
+        },
+      },
     },
+
     departureTime: {
       type: String, // e.g. "18:30"
       required: true,
     },
-    deprtureDate :{
+    departureDate: {
       type: String,
       required: true,
     },
+
     rideType: {
       type: String,
       enum: ['Moto', 'UberGo', 'UberAuto'],
       default: 'Moto',
     },
+
     status: {
       type: String,
       enum: ['open', 'ongoing', 'completed', 'cancelled'],
       default: 'open',
     },
+
     duration: String,
     distance: Number,
+
     buddies: [
       {
         user: {
@@ -64,6 +80,7 @@ const shareRideSchema = new Schema(
         },
       },
     ],
+
     fare: Number,
     isPaid: {
       type: Boolean,
@@ -78,7 +95,8 @@ const shareRideSchema = new Schema(
   }
 );
 
-// Geospatial index for searching nearby share rides
+// ✅ Geospatial indexes for pickup & destination
 shareRideSchema.index({ 'pickup.coordinates': '2dsphere' });
+shareRideSchema.index({ 'destination.coordinates': '2dsphere' });
 
 export const ShareRide = mongoose.model('ShareRide', shareRideSchema);

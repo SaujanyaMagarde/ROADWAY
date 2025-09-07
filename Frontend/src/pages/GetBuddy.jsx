@@ -233,23 +233,49 @@ function GetBuddy() {
       const poly = res?.data?.data?.data?.routes?.[0]?.overview_polyline || "";
 
       const finalrideCreate = {
-        pickup: rideData.pickup,
-        destination: rideData.destination,
+        pickup: {
+          location: rideData.pickup.location,
+          coordinates: {
+            type: "Point",
+            coordinates: [rideData.pickup.lng, rideData.pickup.lat],
+          },
+        },
+        destination: {
+          location: rideData.destination.location,
+          coordinates: {
+            type: "Point",
+            coordinates: [rideData.destination.lng, rideData.destination.lat],
+          },
+        },
         distance: dis,
         duration: dur,
-        date: rideData.date,
-        pickuptime: rideData.time,
+        departureDate: rideData.date,
+        departureTime: rideData.time,
         fare: dis * 10,
         polyline: poly,
         rideType: rideData.rideType,
       };
 
-      console.log("Final Ride Object:", finalrideCreate);
-
       if(activeTab === "find"){
         try {
           const res = await axios.post(
             import.meta.env.VITE_BUDDY_SHARE_RIDE,
+            finalrideCreate,
+            {
+              withCredentials: true,
+              headers: { "Content-Type": "application/json" },
+            }
+          );
+          console.log(res);
+        } catch (error) {
+          console.log(error)
+        }
+      }
+      else if(activeTab === "join"){
+        try {
+          console.log(finalrideCreate);
+          const res = await axios.post(
+            import.meta.env.VITE_GET_BUDDY,
             finalrideCreate,
             {
               withCredentials: true,
