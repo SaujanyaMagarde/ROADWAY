@@ -14,6 +14,9 @@ import CaptainProfilePage from './components/CaptainProfile.jsx'
 import OnGoing from './pages/onGoing.jsx'
 import OnGoingCaptain from './pages/onGoingCaptain.jsx';
 import GetBuddy from './pages/GetBuddy.jsx'
+import OngoingBuddy from './pages/OngoingBuddy.jsx'
+import InfoBuddy from './pages/InfoBuddy.jsx'
+
 function App() {
   return (
     <div>
@@ -30,6 +33,8 @@ function App() {
         <Route path='/user-ongoing-rides' element={<UserProtectecdWrapper><OnGoing/></UserProtectecdWrapper>}/>
         <Route path='/captain-ongoing-rides' element={<CaptainProtectecdWrapper><OnGoingCaptain/></CaptainProtectecdWrapper>}/>
         <Route path='/user-find-buddy' element={<UserProtectecdWrapper><GetBuddy/></UserProtectecdWrapper>}/>
+        <Route path='/ongoing-for-buddy' element={<UserProtectecdWrapper><OngoingBuddy/></UserProtectecdWrapper>}/>
+        <Route path='/info-buddy' element={<UserProtectecdWrapper><InfoBuddy/></UserProtectecdWrapper>}/>
       </Routes>
     </div>
   )

@@ -6,6 +6,7 @@ import { uploadResult } from '../utils/Cloudinary.js';
 import { User } from '../models/user.model.js';
 import {Ride} from '../models/ride.model.js';
 import {ShareRide} from '../models/shareRide.model.js';
+import { getIO,sendMessageToSocket } from '../utils/socket.js';
 
 async function deleteExpiredRides() {
   try {
@@ -242,7 +243,6 @@ const shareRide = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, "Ride shared successfully", newShareRide));
 });
 
-
 const getBuddy = asyncHandler(async (req, res) => {
   const userId = req.user._id;
   const { pickup, destination, departureTime, departureDate, rideType } = req.body;
@@ -293,11 +293,119 @@ const getBuddy = asyncHandler(async (req, res) => {
 
     // 5. Ride type match
     rideType,
-  });
+  }).populate("createdBy", "fullname avatar createdAt mobile_no"); 
 
   return res
     .status(200)
     .json(new ApiResponse(200, "Nearby rides fetched successfully", rides));
+});
+
+const reqbuddy = asyncHandler(async (req, res) => {
+  const userId = req.user._id;
+  const buddyride = req.body;
+
+  // Buddy who created this ride
+  const buddyId = buddyride?.createdBy?._id;
+  if (!buddyId) {
+    throw new ApiError(400, "Buddy ID not found in request");
+  }
+
+  // Fetch buddy user
+  const buddy = await User.findById(buddyId).select("fullname email mobile_no socketId");
+  if (!buddy) {
+    throw new ApiError(404, "Buddy not found");
+  }
+
+  await ShareRide.findByIdAndUpdate(
+    buddyride._id,
+    { $addToSet: { request: { user: userId } } }, // Add requester to 'request' array
+    { new: true }
+  );
+
+  // Current user (the requester)
+  const user = await User.findById(userId).select("fullname email mobile_no");
+
+  // Get buddy's socketId
+  const buddysocketId = buddy?.socketId;
+
+  if (buddysocketId) {
+    sendMessageToSocket(buddysocketId, {
+      type: "buddy_requested",
+      ride: buddyride,
+      user, // requester details
+    });
+  }
+
+  return res.status(200).json(
+    new ApiResponse(200, "Request sent to buddy",buddysocketId)
+  );
+});
+
+const giveride =  asyncHandler(async(req,res)=>{
+  if(!req.user || !req.user._id){
+      throw new ApiError("unauthorised request");
+  }
+
+  const userId = req.user?._id;
+
+  const rides = await ShareRide.find({
+    createdBy: userId,
+    status: { $in: ["open", "accepted", "ongoing", "endjourney"] }
+  })
+  .sort({ createdAt: -1 })
+  .limit(1)
+  .populate({
+      path: "request.user", // field in ShareRide schema
+      select: "fullname mobile_no avatar", // only fetch these fields
+    })
+    .exec();
+
+  const ride = rides[0];
+
+  return res.status(200).json(
+      new ApiResponse(
+          200,
+          "ride fetched successfully",
+          ride
+      )
+  );
+});
+
+const giverequestride = asyncHandler(async (req, res) => {
+  if (!req.user || !req.user._id) {
+    throw new ApiError(401, "Unauthorized request");
+  }
+
+  const userId = req.user._id;
+
+  // Find latest ride where this user is in the request array
+  const rides = await ShareRide.find({
+    "request.user": userId,
+  })
+    .sort({ createdAt: -1 }) // latest first
+    .limit(1) // only the latest
+    .populate({
+      path: "createdBy",
+      select: "fullname mobile_no avatar", // show ride creator details
+    })
+    .populate({
+      path: "request.user",
+      select: "fullname mobile_no avatar", // show requested users details
+    });
+
+  const ride = rides[0]; // single latest ride
+
+  if (!ride) {
+    throw new ApiError(404, "No requested rides found");
+  }
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      "Requested ride fetched successfully",
+      ride
+    )
+  );
 });
 
 
@@ -307,6 +415,9 @@ export {
     deleteExpiredRides,
     fetchOngoingRides,
     shareRide,
-    getBuddy
+    getBuddy,
+    reqbuddy,
+    giveride,
+    giverequestride,
 }
 

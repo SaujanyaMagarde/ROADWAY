@@ -11,7 +11,6 @@ const shareRideSchema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Captain',
     },
-
     pickup: {
       location: {
         type: String,
@@ -29,7 +28,6 @@ const shareRideSchema = new Schema(
         },
       },
     },
-
     destination: {
       location: {
         type: String,
@@ -47,7 +45,6 @@ const shareRideSchema = new Schema(
         },
       },
     },
-
     departureTime: {
       type: String, // e.g. "18:30"
       required: true,
@@ -65,7 +62,7 @@ const shareRideSchema = new Schema(
 
     status: {
       type: String,
-      enum: ['open', 'ongoing', 'completed', 'cancelled'],
+      enum: ['open','accepted','ongoing','endjouney','completed', 'cancelled'],
       default: 'open',
     },
 
@@ -89,6 +86,14 @@ const shareRideSchema = new Schema(
     paymentID: String,
     otp: String,
     signature: String,
+    request : [
+      {
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User',
+        },
+      },
+    ],
   },
   {
     timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },

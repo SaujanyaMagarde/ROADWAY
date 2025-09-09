@@ -7,6 +7,8 @@ import { useSelector,useDispatch } from 'react-redux';
 import { initializeSocket } from '../Store/SocketSlice.jsx';
 import { setConnected } from '../Store/SocketSlice.jsx';
 import { store } from '../Store/Store.jsx';
+import Selectbuddy from '../components/selectbuddy.jsx';
+import { useRef } from "react";
 
 function GetBuddy() {
   const navigate = useNavigate();
@@ -49,6 +51,13 @@ function GetBuddy() {
   const [dateJoin, setDateJoin] = useState("");
   const [timeJoin, setTimeJoin] = useState("");
   const [rideTypeJoin, setRideTypeJoin] = useState("Moto");
+
+  //api data
+  const [ride, setride] = useState(null);
+  const [reqride, setReqride] = useState(null);
+
+  //component controller
+  const [buddyFound, setbuddyFound] = useState(false);
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
@@ -267,13 +276,13 @@ function GetBuddy() {
             }
           );
           console.log(res);
+          navigate('/ongoing-for-buddy');
         } catch (error) {
           console.log(error)
         }
       }
       else if(activeTab === "join"){
         try {
-          console.log(finalrideCreate);
           const res = await axios.post(
             import.meta.env.VITE_GET_BUDDY,
             finalrideCreate,
@@ -282,7 +291,9 @@ function GetBuddy() {
               headers: { "Content-Type": "application/json" },
             }
           );
-          console.log(res);
+          console.log(res?.data?.data);
+          setride(res?.data?.data);
+          setbuddyFound(true);
         } catch (error) {
           console.log(error)
         }
@@ -332,10 +343,12 @@ function GetBuddy() {
         userId: user._id,
         userType: "user",
       });
-      console.log("🧩 Emitted join event!", user._id, user.role);
+      
       const handleMessage = (data) => {
-        if (data.type === "buddy_found") {
+        if (data.type === "buddy_requested") {
+          navigate('/ongoing-for-buddy');
           console.log(data);
+          setReqride(data);
         }
       };
       socket.on("message", handleMessage);
@@ -599,6 +612,8 @@ function GetBuddy() {
           </form>
         </div>
       </motion.div>
+
+      {buddyFound && <Selectbuddy ride={ride} />}
     </div>
   );
 }

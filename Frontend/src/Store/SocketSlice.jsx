@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 
 // Initialize socket with options
 const socket = io(`${import.meta.env.VITE_SERVER_URL}`, {
+   transports: ["websocket"],
     reconnection: true,
     reconnectionAttempts: 5,
     reconnectionDelay: 1000,
@@ -34,30 +35,42 @@ const socketSlice = createSlice({
 
 export const { setConnected, addMessage, setError} = socketSlice.actions;
 
-// Socket middleware functions
-export const initializeSocket = () => (dispatch) => {
-    // Connect the socket
-    socket.connect();
+let listenersRegistered = false;
 
+export const initializeSocket = () => (dispatch) => {
+  if (!listenersRegistered) {
     socket.on("connect", () => {
-        console.log("✅ Socket Connected Successfully!", socket.id);
-        dispatch(setConnected(true));
+      console.log("✅ Socket Connected Successfully!", socket.id);
+      dispatch(setConnected(true));
     });
 
     socket.on("connect_error", (error) => {
-        console.error("🔴 Connection Error:", error);
-        dispatch(setError(error.message));
+      console.error("🔴 Connection Error:", error);
+      dispatch(setError(error.message));
     });
 
     socket.on("disconnect", () => {
-        console.log("❌ Socket Disconnected!");
-        dispatch(setConnected(false));
+      console.log("❌ Socket Disconnected!");
+      dispatch(setConnected(false));
     });
 
     socket.on("error", (error) => {
-        console.error("🔴 Socket Error:", error);
-        dispatch(setError(error));
+      console.error("🔴 Socket Error:", error);
+      dispatch(setError(error));
     });
+
+    socket.on("message", (message) => {
+      console.log("📩 Received message:", message);
+      dispatch(addMessage(message));
+    });
+
+    listenersRegistered = true; // ✅ only once
+  }
+
+  // Always try connecting
+  if (!socket.connected) {
+    socket.connect();
+  }
 };
 
 export const sendMessage = (message) => () => {
