@@ -1,11 +1,22 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Phone, XCircle } from "lucide-react";
-
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 function WaitforAccept({ ride }) {
-  const handleCancelRequest = () => {
-    console.log("Cancel request clicked for ride:", ride._id);
-    // TODO: Add API call to cancel request
+  const navigate = useNavigate();
+
+  const handleCancelRequest = async() => {
+    const rideId = ride?._id;
+    try {
+      const res = await axios.post(import.meta.env.VITE_BUDDY_REMOVE_REQUEST,{rideId},{
+        withCredentials: true,
+        headers: { "Content-Type": "application/json" },
+      });
+      navigate("/user-find-buddy");
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (

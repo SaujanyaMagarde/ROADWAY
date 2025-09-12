@@ -78,7 +78,7 @@ function UserLogin() {
         >
           {/* Logo / Title */}
           <h2 className="text-3xl font-extrabold text-gray-900 mb-6 text-center tracking-tight">
-            🚖 RoadWay Login
+            🚖 User Login
           </h2>
 
           {/* Email */}

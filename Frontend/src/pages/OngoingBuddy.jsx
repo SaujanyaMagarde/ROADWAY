@@ -90,7 +90,18 @@ function OngoingBuddy() {
     );
   }
 
-  return <p>No active ride</p>;
+  if( ride.status === "accepted"){
+    return(
+      <div>ride bookedby buddies</div>
+    )
+  }
+
+  return (
+    <div>
+        <p>No ride Created</p>
+        <p onClick={() => navigate('/user-find-buddy')}>return to home</p>
+      </div>
+  )
 }
 
 export default OngoingBuddy;

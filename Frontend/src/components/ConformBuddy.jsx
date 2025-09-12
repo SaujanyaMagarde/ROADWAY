@@ -1,20 +1,39 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Phone } from "lucide-react";
-
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 function ConformBuddy({ ride }) {
+  const navigate = useNavigate();
   if (!ride) {
     return <p className="text-center text-gray-500">No ride found</p>;
   }
 
-  const handleConfirm = (userId) => {
-    console.log("✅ Confirmed user:", userId);
-    // TODO: API call to confirm buddy
+  const handleConfirm = async(buddyId) => {
+    const rideId = ride?._id;
+    try {
+      const res = await axios.post(import.meta.env.VITE_BUDDY_ACCEPT, {rideId,buddyId }, {
+        withCredentials: true,
+        headers: { "Content-Type": "application/json" },
+      });
+      navigate(0);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  const handleReject = (userId) => {
-    console.log("❌ Rejected user:", userId);
-    // TODO: API call to reject buddy
+  const handleReject = async(buddyId) => {
+    const rideId = ride?._id;
+    try {
+      const res = await axios.post(import.meta.env.VITE_BUDDY_REJECT, {rideId,buddyId }, {
+        withCredentials: true,
+        headers: { "Content-Type": "application/json" },
+      });
+      console.log("✅ Confirmed user:", res);
+      navigate(0);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (

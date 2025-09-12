@@ -21,7 +21,6 @@ import { rideStart } from '../Store/Authslice.jsx';
 function Home({status = null, details = null }) {
   console.log("Home component rendered with status:", status);
   console.log("Ride details:", details);
-
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [routedetails, setroutedetails] = useState(null)

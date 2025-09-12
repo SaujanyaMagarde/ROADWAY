@@ -1,9 +1,26 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Loader2, MapPin, Clock, IndianRupee, Users } from "lucide-react";
-
-function WaitForBuddy({ ride, onCancel }) {
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+function WaitForBuddy({ ride}) {
+  const navigate = useNavigate();
   if (!ride) return null;
+
+  const onCancel = async() => {
+    const rideId = ride?._id;
+    try {
+      const res = await axios.post(import.meta.env.VITE_CANCEL_RIDE,{rideId}, {
+        withCredentials: true,
+        headers: { "Content-Type": "application/json" },
+      });
+
+      console.log(res);
+      navigate("/user-find-buddy");
+    } catch (error) {
+      console.error("Error cancelling ride:", error);
+    }
+  }
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">

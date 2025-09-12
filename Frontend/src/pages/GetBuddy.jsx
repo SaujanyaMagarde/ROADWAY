@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
 import { useNavigate } from 'react-router-dom';
@@ -13,6 +13,7 @@ import { useRef } from "react";
 function GetBuddy() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const userid = useSelector((state) => state.auth.userdata);
   const [activeTab, setActiveTab] = useState("find"); // "find" or "join"
   const [userLocation, setUserLocation] = useState({ lat: null, lon: null });
   const [suggestion, setSuggestion] = useState([]);
@@ -357,6 +358,43 @@ function GetBuddy() {
       };
     }
   }, [user, isConnected]);
+
+  const fetchOngoingRide = async () => {
+    try {
+      const res = await axios.get(import.meta.env.VITE_GIVE_RIDE, {
+        withCredentials: true,
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = res?.data?.data;
+      if(data?.createdBy == userid._id){
+        navigate('/ongoing-for-buddy');
+      }
+    } catch (error) {
+      console.error("Error fetching ongoing ride:", error);
+    }
+  };
+
+  const fetchOngoingRide2 = async () => {
+    try {
+      const res = await axios.get(import.meta.env.VITE_GIVE_REQUEST_RIDE, {
+        withCredentials: true,
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = res?.data?.data;
+      if(data){
+        navigate('/info-buddy');
+      }
+    } catch (error) {
+      console.error("Error fetching ongoing ride:", error);
+    }
+  };
+  
+
+  // 🔹 Fetch ride on mount
+  useEffect(() => {
+    fetchOngoingRide();
+    fetchOngoingRide2();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-500 via-purple-500 to-indigo-600 p-4 text-white">

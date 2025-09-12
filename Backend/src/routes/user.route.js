@@ -2,7 +2,7 @@ import {Router} from "express";
 import {upload} from "../middlewares/multer.middleware.js"
 import {getcaptaindata, getOtp, getProfile, getrideinfo, loginUser, logoutUser, registerUser,gethistory} from "../controllers/user.controller.js"
 import { verifyJWTUser } from "../middlewares/userauth.middleware.js";
-import { createRide, deleteRide,fetchOngoingRides, getBuddy, reqbuddy, shareRide,giveride,giverequestride } from "../controllers/ride.controller.js";
+import { createRide, deleteRide,fetchOngoingRides, getBuddy, reqbuddy, shareRide,giveride,giverequestride,conformbuddy,cancelRide,rejectRequest, removeRequestFromRide } from "../controllers/ride.controller.js";
 import { User } from "../models/user.model.js";
 const UserRouter = Router();
 
@@ -29,6 +29,10 @@ UserRouter.route('/user-find-buddy').post(verifyJWTUser,getBuddy);
 UserRouter.route('/user-request-buddy').post(verifyJWTUser,reqbuddy);
 UserRouter.route('/user-give-ride').get(verifyJWTUser,giveride);
 UserRouter.route('/user-give-request-ride').get(verifyJWTUser,giverequestride);
+UserRouter.route('/user-conform-buddy').post(verifyJWTUser,conformbuddy);
+UserRouter.route('/user-cancel-ride').post(verifyJWTUser,cancelRide);
+UserRouter.route('/user-reject-buddy').post(verifyJWTUser,rejectRequest);
+UserRouter.route('/user-remove-request').post(verifyJWTUser,removeRequestFromRide);
 
 
 export {UserRouter}

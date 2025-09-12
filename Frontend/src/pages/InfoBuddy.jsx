@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { socket } from "../Store/SocketSlice.jsx";
+import { useSelector,useDispatch } from "react-redux";
 import axios from "axios";
 import WaitforAccept from "../components/WaitforAccept";
+import { initializeSocket } from "../Store/SocketSlice.jsx";
 
 function InfoBuddy() {
   const [ride, setRide] = useState(null);
@@ -35,6 +37,35 @@ function InfoBuddy() {
     }
   }, [ride]);
 
+  const user = useSelector((state) => state.auth.userdata);
+  const isConnected = useSelector((state) => state.socket.connected);
+
+  useEffect(() => {
+    dispatch(initializeSocket());
+  }, [dispatch]);
+
+  // 🔹 Socket listeners
+  useEffect(() => {
+    if (user && isConnected) {
+      socket.emit("join", {
+        userId: user._id,
+        userType: user.role || "user", // send actual role
+      });
+      console.log("🧩 Emitted join event!", user._id, user.role);
+
+      const handleMessage = (data) => {
+        console.log("📩 Ride status update:", data);
+        if (data.type === "ride_confirmed") {
+          console.log("📩 Ride confirmed:", data);
+          fetchOngoingRide();
+        }
+      };
+
+      socket.on("message", handleMessage);
+      return () => socket.off("message", handleMessage);
+    }
+  }, [user, isConnected]);
+
   // 🔹 Handle no ride
   if (!ride) {
     return (
@@ -53,6 +84,11 @@ function InfoBuddy() {
   // 🔹 Ride waiting for acceptance
   if (ride.status === "open") {
     return <WaitforAccept ride={ride} />;
+  }
+  else if(ride.status==="accepted"){
+    return(
+      <div></div>
+    )
   }
 
   // 🔹 Ride in other statuses

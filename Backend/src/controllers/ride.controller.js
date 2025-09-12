@@ -200,6 +200,11 @@ const shareRide = asyncHandler(async (req, res) => {
   if (!departureDate) throw new ApiError(400, "Departure date is required");
   if (!departureTime) throw new ApiError(400, "Departure time is required");
 
+  await ShareRide.deleteMany({
+  createdBy: userId,
+  status: { $in: ["open", "accepted", "ongoing"] }
+});
+
   // --- CREATE RIDE ---
   const newShareRide = await ShareRide.create({
     createdBy: userId,
@@ -352,7 +357,7 @@ const giveride =  asyncHandler(async(req,res)=>{
     createdBy: userId,
     status: { $in: ["open", "accepted", "ongoing", "endjourney"] }
   })
-  .sort({ createdAt: -1 })
+  .sort({ created_at: -1 })
   .limit(1)
   .populate({
       path: "request.user", // field in ShareRide schema
@@ -360,7 +365,25 @@ const giveride =  asyncHandler(async(req,res)=>{
     })
     .exec();
 
+  if (rides.length === 0) {
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        "No ongoing shared ride found",
+      )
+    );
+  }
+
   const ride = rides[0];
+
+  if (!ride) {
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        "No ongoing shared ride found",
+      )
+    );
+  }
 
   return res.status(200).json(
       new ApiResponse(
@@ -376,37 +399,189 @@ const giverequestride = asyncHandler(async (req, res) => {
     throw new ApiError(401, "Unauthorized request");
   }
 
-  const userId = req.user._id;
+  const userId = new mongoose.Types.ObjectId(req.user._id);
 
-  // Find latest ride where this user is in the request array
-  const rides = await ShareRide.find({
-    "request.user": userId,
+  const ride = await ShareRide.findOne({
+    $or: [
+      { request: { $elemMatch: { user: userId } } },
+      { buddies: { $elemMatch: { user: userId } } },
+    ],
   })
-    .sort({ createdAt: -1 }) // latest first
-    .limit(1) // only the latest
-    .populate({
-      path: "createdBy",
-      select: "fullname mobile_no avatar", // show ride creator details
-    })
-    .populate({
-      path: "request.user",
-      select: "fullname mobile_no avatar", // show requested users details
-    });
-
-  const ride = rides[0]; // single latest ride
+    .sort({ created_at: -1 })
+    .populate("createdBy", "fullname mobile_no avatar")
+    .populate("request.user", "fullname mobile_no avatar")
+    .populate("buddies.user", "fullname mobile_no avatar");
 
   if (!ride) {
-    throw new ApiError(404, "No requested rides found");
+    return res
+      .status(200)
+      .json(new ApiResponse(200, "No requested ride found"));
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, "Requested ride fetched successfully", ride));
+});
+
+const conformbuddy = asyncHandler(async (req, res) => {
+  if (!req.user || !req.user._id) {
+    throw new ApiError(401, "Unauthorized request");
+  }
+  console.log(req.body);
+  const userId = req.user._id;
+  const { rideId, buddyId } = req.body;
+
+  if (!rideId || !buddyId) {
+    throw new ApiError(400, "rideId and buddyId are required");
+  }
+
+  const ride = await ShareRide.findById(rideId);
+  if (!ride) {
+    throw new ApiError(404, "Ride not found");
+  }
+
+  // Remove buddy from request array
+  ride.request = ride.request.filter(r => r.user.toString() !== buddyId.toString());
+
+  // Add buddy to buddies array if not already added
+  if (!ride.buddies.includes(buddyId)) {
+    ride.buddies.push({ user: buddyId });
+  }
+
+  ride.status = "accepted";
+
+  await ride.save();
+
+  // Fetch buddy & creator
+  const budd = await User.findById(buddyId);
+  const creat = await User.findById(ride.createdBy);
+
+  // Extract socketIds
+  const buddsocketId = budd?.socketId;
+  const creatsocketId = creat?.socketId;
+
+  // Notify buddy
+  if (buddsocketId) {
+    sendMessageToSocket(buddsocketId, {
+      type: "ride_confirmed",
+      ride,
+      buddy: budd,
+    });
+  }
+
+  // Notify ride creator
+  if (creatsocketId) {
+    sendMessageToSocket(creatsocketId, {
+      type: "ride_confirmed",
+      ride,
+      creator: creat,
+    });
   }
 
   return res.status(200).json(
-    new ApiResponse(
-      200,
-      "Requested ride fetched successfully",
-      ride
-    )
+    new ApiResponse(200, "Buddy added successfully", ride)
   );
 });
+
+const cancelRide = asyncHandler(async (req,res) =>{
+  if (!req.user || !req.user._id) {
+    throw new ApiError(401, "Unauthorized request");
+  } 
+  const userId = req.user._id;
+  const { rideId } = req.body;
+  
+  if (!rideId) {
+    throw new ApiError(400, "rideId is required");
+  }
+  const ride = await ShareRide.findById(rideId);  
+  if (!ride) {
+    throw new ApiError(404, "Ride not found");
+  }
+
+  await ShareRide.findByIdAndDelete(rideId);
+
+  return res.status(200).json(
+    new ApiResponse(200, "Ride cancelled successfully")
+  );
+})
+
+const rejectRequest = asyncHandler(async (req, res) => {
+  if (!req.user || !req.user._id) {
+    throw new ApiError(401, "Unauthorized request");
+  }
+
+  const userId = req.user._id;
+  const { rideId, buddyId } = req.body;
+
+  if (!rideId || !buddyId) {
+    throw new ApiError(400, "rideId and buddyId are required");
+  }
+
+  const ride = await ShareRide.findById(rideId);
+  if (!ride) {
+    throw new ApiError(404, "Ride not found");
+  }
+
+  // Remove buddy from request array
+  ride.request = ride.request.filter(r => r.user.toString() !== buddyId.toString());
+
+  await ride.save();
+
+  // Fetch buddy
+  const budd = await User.findById(buddyId);
+  const buddsocketId = budd?.socketId;
+
+  // Notify buddy
+  if (buddsocketId) {
+    sendMessageToSocket(buddsocketId, {
+      type: "request_rejected",
+      ride,
+      buddy: budd,
+    });
+  }
+
+  return res.status(200).json(
+    new ApiResponse(200, "Request rejected successfully", ride  )
+  );
+});
+
+const removeRequestFromRide = asyncHandler(async (req, res) => {
+  const { rideId} = req.body;
+  const buddyId = req?.user?._id;
+
+  if (!rideId || !buddyId) {
+    throw new ApiError(400, "rideId and buddyId are required");
+  }
+
+  const ride = await ShareRide.findById(rideId);
+  if (!ride) {
+    throw new ApiError(404, "Ride not found");
+  }
+
+  const createdby = ride?.createdBy;
+
+  const user = User.findById(createdby);
+
+  const socketId = user?.socketId;
+
+  // Remove buddy from request array
+  ride.request = ride.request.filter(r => r.user.toString() !== buddyId.toString());
+
+  await ride.save();
+
+  if(socketId){
+    sendMessageToSocket(socketId, {
+      type: "request_removed",
+      ride,
+    });
+  }
+
+
+  return res.status(200).json(
+    new ApiResponse(200, "Request removed successfully", ride)
+  );
+});
+
 
 
 export {
@@ -419,5 +594,9 @@ export {
     reqbuddy,
     giveride,
     giverequestride,
+    conformbuddy,
+    cancelRide,
+    rejectRequest,
+    removeRequestFromRide,
 }
 
