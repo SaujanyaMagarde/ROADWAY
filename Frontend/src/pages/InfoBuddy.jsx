@@ -5,6 +5,7 @@ import { useSelector,useDispatch } from "react-redux";
 import axios from "axios";
 import WaitforAccept from "../components/WaitforAccept";
 import { initializeSocket } from "../Store/SocketSlice.jsx";
+import LookingforDriver from "../components/lookingforshareddriver.jsx";
 
 function InfoBuddy() {
   const [ride, setRide] = useState(null);
@@ -87,7 +88,7 @@ function InfoBuddy() {
   }
   else if(ride.status==="accepted"){
     return(
-      <div></div>
+      <LookingforDriver conformDetails = {ride} type = "buddy"/>
     )
   }
 

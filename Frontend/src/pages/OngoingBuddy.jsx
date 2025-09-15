@@ -6,6 +6,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { initializeSocket } from "../Store/SocketSlice.jsx";
 import WaitForBuddy from "../components/waitforbuddy.jsx";
 import ConformBuddy from "../components/ConformBuddy.jsx";
+import LookingforDriver from "../components/lookingforshareddriver.jsx";
 
 function OngoingBuddy() {
   const [ride, setRide] = useState(null);
@@ -92,7 +93,7 @@ function OngoingBuddy() {
 
   if( ride.status === "accepted"){
     return(
-      <div>ride bookedby buddies</div>
+      <LookingforDriver conformDetails = {ride} type = "creater"/>
     )
   }
 
