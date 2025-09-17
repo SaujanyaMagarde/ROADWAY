@@ -16,6 +16,8 @@ import { store } from '../Store/Store.jsx';
 import Otpbox from '../components/Otpbox.jsx';
 
 function RideStart({status=null,details=null}) {
+
+  // console.log(details);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const gotopickRef = useRef(null);
@@ -39,18 +41,12 @@ function RideStart({status=null,details=null}) {
     }
   }, [status, details, dispatch]);
 
-
   const fetchUserData = async () => {
-    if (!ride?.user) {
-      setError("No passenger information available");
-      setLoading(false);
-      return;
-    }
     
     try {
       const response = await axios.post(
         import.meta.env.VITE_GETUSERDATA,
-        { user_id: ride.user },
+        { user_id: ride.user || ride?.createdBy},
         {
           withCredentials: true,
           headers: {

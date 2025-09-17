@@ -37,12 +37,12 @@ function OnGoingCaptain() {
     );
   }
 
-  if (ongoingRide?.status === "accepted") {
-    return <RideStart status="accepted" details={ongoingRide} />;
+  if (ongoingRide?.[0]?.status === "accepted") {
+    return <RideStart status="accepted" details={ongoingRide?.[0]} />;
   }
 
-  if (ongoingRide?.status === "ongoing") {
-    return <CaptainendJurny status="ongoing" details={ongoingRide} />;
+  if (ongoingRide?.[0]?.status === "ongoing") {
+    return <CaptainendJurny status="ongoing" details={ongoingRide?.[0]} />;
   }
 
   return (

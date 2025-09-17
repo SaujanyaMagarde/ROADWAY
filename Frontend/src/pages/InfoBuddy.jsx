@@ -60,6 +60,10 @@ function InfoBuddy() {
           console.log("📩 Ride confirmed:", data);
           fetchOngoingRide();
         }
+        if (data.type === "ride_accepted") {
+          console.log("📩 Buddy confirmed:", data);
+          fetchOngoingRide();
+        }
       };
 
       socket.on("message", handleMessage);

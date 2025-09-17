@@ -9,6 +9,7 @@ import { getIO,sendMessageToSocket } from '../utils/socket.js';
 import {User} from '../models/user.model.js'
 import { deleteExpiredRides} from './ride.controller.js';
 import {DB_NAME} from "../constant.js";
+import { ShareRide } from '../models/shareRide.model.js';
 
 const registerCaptain = asyncHandler(async (req, res) => {
     const { firstname, lastname, email, password, mobile_no, color, plate, capacity, vehicleType } = req.body;
@@ -219,7 +220,7 @@ const getride = asyncHandler(async (req, res) => {
 
     const maxDistance = 20000;
 
-    const nearbyRides = await Ride.aggregate([
+    let nearbyRides = await Ride.aggregate([
         {
             $geoNear: {
                 near: {
@@ -256,6 +257,49 @@ const getride = asyncHandler(async (req, res) => {
         },
     ]);
 
+    let shareRides = await ShareRide.aggregate([
+    {
+        $geoNear: {
+        near: {
+            type: "Point",
+            coordinates: [lng, lat],
+        },
+        distanceField: "distance",
+        maxDistance: maxDistance,
+        query: {
+            status: "accepted",
+        },
+        spherical: true,
+        key: "pickup.coordinates",
+        },
+    },
+    {
+        $lookup: {
+        from: "users",
+        localField: "createdBy",
+        foreignField: "_id",
+        as: "createdBy",
+        },
+    },
+    {
+        $unwind: "$createdBy",
+    },
+    {
+        $project: {
+        pickup: 1,
+        destination: 1,
+        fare: 1,
+        status: 1,
+        distance: 1,
+        "createdBy.fullname": 1,
+        "createdBy.email": 1,
+        rideType: { $literal: "share" },
+        },
+    },
+    ]);
+
+    nearbyRides = [...nearbyRides, ...shareRides];
+
     return res.status(200).json(
         new ApiResponse(
             200,
@@ -271,7 +315,7 @@ const acceptRide = asyncHandler(async (req, res) => {
     }
 
     const captainID = req.captain._id;
-    const { rideId } = req.query;
+    const { rideId } = req.body;
 
     if (!rideId) {
         throw new ApiError(400, "rideId is required to accept a ride");
@@ -297,6 +341,65 @@ const acceptRide = asyncHandler(async (req, res) => {
     console.log(updatedRide);
     
     const user = await User.findById(updatedRide.user);
+    if (user && user.socketId) {
+        console.log(user.socketId)
+        sendMessageToSocket(user.socketId, {
+            type: "ride_accepted",
+            rideId: updatedRide._id,
+            captainId: updatedRide.captain,
+            status: updatedRide.status,
+        });
+    }
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            "Ride accepted successfully",
+            updatedRide
+        )
+    );
+});
+
+const acceptShareRide = asyncHandler(async (req, res) => {
+    if (!req.captain || !req.captain._id) {
+        throw new ApiError(401, "Unauthorized request");
+    }
+
+    const captainID = req.captain._id;
+    const { rideId } = req.body;
+
+    if(!rideId){
+        throw new ApiError(400,"rideId is required to accept a ride");
+    }
+
+    const ride = await ShareRide.findOne({ _id: rideId, status: "accepted" });
+    if (!ride) {
+        throw new ApiError(404, "Ride not found or already accepted");
+    }
+
+    const updatedRide = await ShareRide.findByIdAndUpdate(
+        rideId,
+        {
+            captain: captainID,
+            status: "accepted",
+        },
+        { new: true }
+    );
+
+    console.log(updatedRide);
+    
+    const user = await User.findById(updatedRide.createdBy);
+
+    const buddy = await User.findById(ride.buddies[0]?.user);
+
+    if(buddy && buddy.socketId){
+        sendMessageToSocket(buddy.socketId,{
+            type : "ride_accepted",
+            rideId : updatedRide._id,
+            captainId : updatedRide.captain,
+            status : updatedRide.status,
+        })
+    }
     if (user && user.socketId) {
         console.log(user.socketId)
         sendMessageToSocket(user.socketId, {
@@ -553,19 +656,28 @@ const fetchOngoingRides = asyncHandler(async (req, res) => {
 
     const captainId = req.captain._id;
 
-    const ride = await Ride.findOne({
-      captain: captainId,
-  status: { $in: ['pending', 'accepted', 'ongoing'] }
-}).sort({ createdAt: -1 });
+    let ride = await Ride.findOne({
+        captain: captainId,
+        status: { $in: ['pending', 'accepted', 'ongoing'] }
+    }).sort({ created_at: -1 });
+
+    let shareRide = await ShareRide.findOne({
+        captain: captainId,
+        status: { $in: ['accepted', 'ongoing', 'endjouney'] }
+    }).sort({ created_at: -1 });
+
+    // return both as array, filter out nulls
+    const rides = [ride, shareRide].filter(Boolean);
 
     return res.status(200).json(
         new ApiResponse(
             200,
             "rides fetched successfully",
-            ride
+            rides
         )
     );
 });
+
 
 const getCaptainhistory = asyncHandler(async (req, res) => {
   const captainId = req.captain._id;
@@ -605,5 +717,6 @@ export {
     getuserdata,
     sendlocation,
     sendrideinfo,
-    getCaptainhistory
+    getCaptainhistory,
+    acceptShareRide,
  };

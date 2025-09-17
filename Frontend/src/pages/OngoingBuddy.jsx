@@ -61,6 +61,10 @@ function OngoingBuddy() {
           console.log("📩 Buddy requested:", data);
           fetchOngoingRide();
         }
+        else if (data.type === "ride_accepted") {
+          console.log("📩 Buddy confirmed:", data);
+          fetchOngoingRide();
+        }
       };
 
       socket.on("message", handleMessage);

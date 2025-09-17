@@ -4,10 +4,13 @@ import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import {fillride} from '../Store/CaptainSlice.jsx';
+
 function ConformRidePopup({ setridePopup, setConformRide, confromDetails,setpickupride}) {
-  
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const rideType = confromDetails?.rideType || 'Standard';
+
+  const url = (rideType === 'Standard') ? import.meta.env.VITE_ACCEPT_RIDE : import.meta.env.VITE_CAPTAIN_ACCEPT_SHARE_RIDE;
   const submitHandler = async (e) => {
     e.preventDefault();
   
@@ -19,12 +22,13 @@ function ConformRidePopup({ setridePopup, setConformRide, confromDetails,setpick
         return;
       }
   
-      const res = await axios.get(import.meta.env.VITE_ACCEPT_RIDE, {
-        params: { rideId },
-        withCredentials: true,
-      });
-
-      console.log("Ride accepted:", res.data.data);
+      const res = await axios.post(url,{rideId: rideId },
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json"
+          }
+        });
       setpickupride(res.data.data);
       dispatch(fillride(res.data.data));
       navigate('/captain-ongoing-rides');
@@ -68,7 +72,7 @@ function ConformRidePopup({ setridePopup, setConformRide, confromDetails,setpick
         <div className="space-y-4 text-sm text-gray-700 font-medium">
           <Detail label="ETA" value={`${confromDetails.ETA} minutes`} />
           <Detail label="Pickup Distance" value={`${(confromDetails.distance_p / 1000).toFixed(2)} km`} />
-          <Detail label="Ride Distance" value={`${(confromDetails.distance / 1000).toFixed(2)} km`} />
+          <Detail label="Ride Distance" value={`${(confromDetails.distance / 100).toFixed(2)} km`} />
           <Detail label="Pickup Location" value={confromDetails.pickup?.location || "N/A"} />
           <Detail label="Destination" value={confromDetails.destination?.location || "N/A"} />
           <Detail label="Fare" value={`₹${confromDetails.fare}`} />

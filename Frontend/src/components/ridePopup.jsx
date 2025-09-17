@@ -81,7 +81,8 @@ function RidePopup({ setridePopup, setConformRide, rideAvailablle ,setconfromDet
       pickup : rideAvailablle?.[index]?.pickup,
       destination : rideAvailablle?.[index]?.destination,
       fare : rideAvailablle?.[index]?.fare,
-      user : rideAvailablle?.[index]?.user,
+      user : rideAvailablle?.[index]?.createdBy || rideAvailablle?.[index]?.user,
+      rideType : rideAvailablle?.[index]?.rideType || 'Standard',
     }
     console.log(data);
     setconfromDetails(data);
