@@ -6,7 +6,10 @@ import axios from "axios";
 import WaitforAccept from "../components/WaitforAccept";
 import { initializeSocket } from "../Store/SocketSlice.jsx";
 import LookingforDriver from "../components/lookingforshareddriver.jsx";
-
+import { User } from "lucide-react";
+import UserRide from "./UserRide.jsx";
+import BuddyPickup from "../components/BuddyPickup.jsx";
+import BuddyEndJourney from "./BuddyEndJourney.jsx";
 function InfoBuddy() {
   const [ride, setRide] = useState(null);
   const navigate = useNavigate();
@@ -64,6 +67,13 @@ function InfoBuddy() {
           console.log("📩 Buddy confirmed:", data);
           fetchOngoingRide();
         }
+        if(data.type == "ride_start"){
+          console.log("📩 Ride started:", data);
+          navigate(0);
+        }
+        if(data.type === "ride_completed"){
+          navigate(0);
+        }
       };
 
       socket.on("message", handleMessage);
@@ -90,9 +100,19 @@ function InfoBuddy() {
   if (ride.status === "open") {
     return <WaitforAccept ride={ride} />;
   }
-  else if(ride.status==="accepted"){
+  else if(ride.status==="accepted" && !ride.captain){
     return(
       <LookingforDriver conformDetails = {ride} type = "buddy"/>
+    )
+  }
+  else if(ride.status==="accepted" && ride.captain){
+    return(
+      <BuddyPickup details={ride}/>
+    )
+  }
+  else if(ride.status ==="ongoing"){
+    return (
+      <BuddyEndJourney details={ride}/>
     )
   }
 
@@ -100,6 +120,12 @@ function InfoBuddy() {
   return (
     <div className="p-6 text-center text-gray-700">
       <p>No active ride available</p>
+      <p
+          onClick={() => navigate("/user-find-buddy")}
+          className="cursor-pointer text-blue-500 underline"
+        >
+          Return to home
+        </p>
     </div>
   );
 }

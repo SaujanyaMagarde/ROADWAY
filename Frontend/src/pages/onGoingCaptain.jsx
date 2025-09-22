@@ -3,6 +3,7 @@ import axios from "axios";
 import RideStart from "./RideStart";
 import CaptainendJurny from "./CaptainendJurny";
 import { useNavigate } from "react-router-dom";
+import CaptainShareEnd from "./CaptainShareEnd";
 function OnGoingCaptain() {
   const [ongoingRide, setOngoingRide] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -41,9 +42,14 @@ function OnGoingCaptain() {
     return <RideStart status="accepted" details={ongoingRide?.[0]} />;
   }
 
-  if (ongoingRide?.[0]?.status === "ongoing") {
+  if (ongoingRide?.[0]?.status === "ongoing" && !ongoingRide?.[0]?.buddies) {
     return <CaptainendJurny status="ongoing" details={ongoingRide?.[0]} />;
   }
+
+  if (ongoingRide?.[0]?.status === "ongoing" && ongoingRide?.[0]?.buddies) {
+    return <CaptainShareEnd status="ongoing" details={ongoingRide?.[0]} />;
+  }
+  
 
   return (
     <div className="flex flex-col items-center justify-center h-screen">

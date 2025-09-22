@@ -377,16 +377,17 @@ const acceptShareRide = asyncHandler(async (req, res) => {
         throw new ApiError(404, "Ride not found or already accepted");
     }
 
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+    
     const updatedRide = await ShareRide.findByIdAndUpdate(
         rideId,
         {
             captain: captainID,
             status: "accepted",
+            otp : otp,
         },
         { new: true }
     );
-
-    console.log(updatedRide);
     
     const user = await User.findById(updatedRide.createdBy);
 
@@ -461,6 +462,8 @@ const startJurny = asyncHandler(async(req,res)=>{
     const  rideId  = req?.body?.rideId;
     const otp = req?.body?.otp;
 
+    console.log(rideId,otp);
+
     if (!rideId) {
         throw new ApiError(400, "rideId is required to accept a ride");
     }
@@ -469,9 +472,48 @@ const startJurny = asyncHandler(async(req,res)=>{
         throw new ApiError(400,"please provide otp");
     }
 
-    const ride = await Ride.findOne({ _id: rideId});
+    let ride = await Ride.findOne({ _id: rideId});
+    
     if (!ride) {
-        throw new ApiError(404, "Ride not found or already accepted");
+        ride = await ShareRide.findOne({_id : rideId});
+        console.log(ride);
+        if(!ride){
+            throw new ApiError(401, "Ride not found or already accepted");
+        }
+        if (ride.otp !== otp) {
+            throw new ApiError(401, "Invalid OTP");
+        }
+        const updatedRide = await ShareRide.findByIdAndUpdate(
+            rideId,
+            {
+                status: "ongoing"
+            },
+            { new: true }
+        );
+
+        const user_id = ride?.createdBy;
+        const user = await User.findById(user_id);
+        const socket_id = user?.socketId;
+
+        sendMessageToSocket(socket_id, {
+            type: "ride_start",
+        });
+
+        const buddy = await User.findById(ride.buddies[0]?.user);
+        if (buddy && buddy.socketId) {
+            sendMessageToSocket(buddy.socketId, {
+                type: "ride_start",
+            });
+        }
+
+
+        return res.status(200).json(
+            new ApiResponse(
+                200,
+                "Ride accepted successfully",
+                updatedRide
+            )
+        );
     }
 
     if (ride.otp !== otp) {
@@ -512,7 +554,36 @@ const completeRide = asyncHandler(async(req,res)=>{
 
     const ride = await Ride.findOne({ _id: rideId});
     if (!ride) {
-        throw new ApiError(404, "Ride not found or already accepted");
+
+        const updatedRide = await ShareRide.findByIdAndUpdate(
+        rideId,
+        {
+            status: "completed",
+        },
+        { new: true }
+        );
+
+        const user = await User.findById(updatedRide.createdBy);
+
+        const buddy = await User.findById(updatedRide.buddies[0]?.user);
+
+        if(buddy && buddy.socketId){
+            sendMessageToSocket(buddy.socketId,{
+                type : "ride_completed",
+            })
+        }
+        if (user && user.socketId) {
+            sendMessageToSocket(user.socketId, {
+                type: "ride_completed",
+            });
+        }
+
+        return res.status(200).json(
+        new ApiResponse(
+            200,
+            "Ride Completed successfully",
+        )
+    );
     }
 
     const user_id = ride?.user;
@@ -664,7 +735,11 @@ const fetchOngoingRides = asyncHandler(async (req, res) => {
     let shareRide = await ShareRide.findOne({
         captain: captainId,
         status: { $in: ['accepted', 'ongoing', 'endjouney'] }
-    }).sort({ created_at: -1 });
+    }).sort({ created_at: -1 })
+    .populate('buddies.user', 'fullname email')
+    .populate('createdBy', 'fullname email');
+
+    console.log(shareRide);
 
     // return both as array, filter out nulls
     const rides = [ride, shareRide].filter(Boolean);
@@ -677,7 +752,6 @@ const fetchOngoingRides = asyncHandler(async (req, res) => {
         )
     );
 });
-
 
 const getCaptainhistory = asyncHandler(async (req, res) => {
   const captainId = req.captain._id;

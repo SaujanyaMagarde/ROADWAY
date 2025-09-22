@@ -11,7 +11,7 @@ import { socket, initializeSocket, setConnected } from '../Store/SocketSlice.jsx
 import { store } from '../Store/Store.jsx';
 import axios from 'axios';
 
-function UserRide({ status = null, details = null }) {
+function UserRide({ status = null, details = null}) {
   const waitingforDriverRef = useRef(null);
   const [isPanelOpen, setIsPanelOpen] = useState(true);
   const [isCollapsed, setIsCollapsed] = useState(false);

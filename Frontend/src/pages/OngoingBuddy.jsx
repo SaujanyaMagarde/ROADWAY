@@ -7,6 +7,8 @@ import { initializeSocket } from "../Store/SocketSlice.jsx";
 import WaitForBuddy from "../components/waitforbuddy.jsx";
 import ConformBuddy from "../components/ConformBuddy.jsx";
 import LookingforDriver from "../components/lookingforshareddriver.jsx";
+import BuddyPickup from "../components/BuddyPickup.jsx";
+import BuddyEndJourney from "./BuddyEndJourney.jsx";
 
 function OngoingBuddy() {
   const [ride, setRide] = useState(null);
@@ -57,12 +59,9 @@ function OngoingBuddy() {
       console.log("🧩 Emitted join event!", user._id, user.role);
 
       const handleMessage = (data) => {
-        if (data.type === "buddy_requested") {
-          console.log("📩 Buddy requested:", data);
-          fetchOngoingRide();
-        }
-        else if (data.type === "ride_accepted") {
-          console.log("📩 Buddy confirmed:", data);
+        console.log("📩 Incoming socket message:", data);
+
+        if (["buddy_requested", "ride_accepted", "ride_confirmed", "ride_start","ride_completed"].includes(data.type)) {
           fetchOngoingRide();
         }
       };
@@ -75,38 +74,55 @@ function OngoingBuddy() {
   // 🔹 Conditional UI
   if (!ride) {
     return (
-      <div>
-        <p>No ride Created</p>
-        <p onClick={() => navigate('/user-find-buddy')}>return to home</p>
+      <div className="p-6 text-center text-gray-700 space-y-3">
+        <p>No ride created yet</p>
+        <p
+          onClick={() => navigate("/user-find-buddy")}
+          className="cursor-pointer text-blue-500 underline"
+        >
+          Return to home
+        </p>
       </div>
-    )
-  }
-
-  if (ride.status === "open" && ride.request.length === 0) {
-    return (
-      <><WaitForBuddy ride = {ride}/></>
-    )
-  }
-
-  if (ride.status === "open" && ride.request.length > 0) {
-    // const buddy = ride.request[0]; // just showing the first buddy for now
-    return (
-      <><ConformBuddy ride = {ride}/></>
     );
   }
 
-  if( ride.status === "accepted"){
-    return(
-      <LookingforDriver conformDetails = {ride} type = "creater"/>
-    )
+  // 🔹 Waiting for buddy (no requests yet)
+  if (ride.status === "open" && ride.request.length === 0) {
+    return <WaitForBuddy ride={ride} />;
   }
 
+  // 🔹 Buddy has requested, waiting for confirmation
+  if (ride.status === "open" && ride.request.length > 0) {
+    return <ConformBuddy ride={ride} />;
+  }
+
+  // 🔹 Ride accepted, searching for captain/driver
+  if (ride.status === "accepted" && !ride.captain) {
+    return <LookingforDriver conformDetails={ride} type="creater" />;
+  }
+
+  // 🔹 Ride accepted with captain assigned
+  if (ride.status === "accepted" && ride.captain) {
+    return <BuddyPickup details={ride} />;
+  }
+
+  // 🔹 Ongoing ride
+  if (ride.status === "ongoing") {
+    return <BuddyEndJourney details={ride} />;
+  }
+
+  // 🔹 Fallback
   return (
-    <div>
-        <p>No ride Created</p>
-        <p onClick={() => navigate('/user-find-buddy')}>return to home</p>
-      </div>
-  )
+    <div className="p-6 text-center text-gray-700 space-y-3">
+      <p>No active ride available</p>
+      <p
+        onClick={() => navigate("/user-find-buddy")}
+        className="cursor-pointer text-blue-500 underline"
+      >
+        Return to home
+      </p>
+    </div>
+  );
 }
 
 export default OngoingBuddy;

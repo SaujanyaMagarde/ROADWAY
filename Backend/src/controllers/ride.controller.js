@@ -402,15 +402,24 @@ const giverequestride = asyncHandler(async (req, res) => {
   const userId = new mongoose.Types.ObjectId(req.user._id);
 
   const ride = await ShareRide.findOne({
-    $or: [
-      { request: { $elemMatch: { user: userId } } },
-      { buddies: { $elemMatch: { user: userId } } },
-    ],
-  })
-    .sort({ created_at: -1 })
-    .populate("createdBy", "fullname mobile_no avatar")
-    .populate("request.user", "fullname mobile_no avatar")
-    .populate("buddies.user", "fullname mobile_no avatar");
+  $and: [
+    {
+      $or: [
+        { request: { $elemMatch: { user: userId } } },
+        { buddies: { $elemMatch: { user: userId } } },
+      ],
+    },
+    { status: { $nin: ["completed"] } },
+  ],
+})
+  .sort({ created_at: -1 })
+  .populate("createdBy", "fullname mobile_no avatar")
+  .populate("request.user", "fullname mobile_no avatar")
+  .populate("buddies.user", "fullname mobile_no avatar")
+  .populate("captain", "fullname avatar mobile_no vehicle");
+
+
+  console.log(ride);
 
   if (!ride) {
     return res

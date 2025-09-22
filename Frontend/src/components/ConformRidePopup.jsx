@@ -29,6 +29,7 @@ function ConformRidePopup({ setridePopup, setConformRide, confromDetails,setpick
             "Content-Type": "application/json"
           }
         });
+      console.log(res.data.data);
       setpickupride(res.data.data);
       dispatch(fillride(res.data.data));
       navigate('/captain-ongoing-rides');
