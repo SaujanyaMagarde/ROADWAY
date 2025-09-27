@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { store } from '../Store/Store';
-import { socket } from '../Store/SocketSlice';
-import { initializeSocket } from '../Store/SocketSlice';
-import { setConnected } from '../Store/SocketSlice';
 
 function UserFinalRide({ isFullHeight, setIsFullHeight, ride, user }) {
 
@@ -17,7 +12,6 @@ function UserFinalRide({ isFullHeight, setIsFullHeight, ride, user }) {
   const [estimatedTime, setEstimatedTime] = useState(null);
   const [currentStep, setCurrentStep] = useState(null);
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
   const handleArrowClick = () => setIsFullHeight(!isFullHeight);
 
@@ -27,31 +21,6 @@ function UserFinalRide({ isFullHeight, setIsFullHeight, ride, user }) {
     const latDiff = Math.abs(loc1.lat - loc2.lat);
     const lngDiff = Math.abs(loc1.lng - loc2.lng);
     return latDiff < threshold && lngDiff < threshold;
-  };
-
-  // Format distance in a more readable way
-  const formatDistance = (meters) => {
-    if (!meters) return "Unknown";
-    if (meters < 1000) {
-      return `${meters} m`;
-    }
-    return `${(meters / 1000).toFixed(1)} km`;
-  };
-
-  // Format time in a more readable way
-  const formatTime = (seconds) => {
-    if (!seconds) return "Unknown";
-    if (seconds < 60) {
-      return `${seconds} sec`;
-    }
-    const minutes = Math.floor(seconds / 60);
-    return `${minutes} min`;
-  };
-
-  // Get clean instructions by removing HTML tags
-  const cleanInstructions = (html) => {
-    if (!html) return "";
-    return html.replace(/<[^>]*>/g, '');
   };
 
   // Location tracking and route calculation
@@ -87,8 +56,6 @@ function UserFinalRide({ isFullHeight, setIsFullHeight, ride, user }) {
             }
             return;
           }
-
-          // Calculate route if navigation is still active
           if (currentCoords && destination.lat && destination.lng && !navigationStopped) {
             try {
               const url = `https://api.olamaps.io/routing/v1/directions?origin=${currentCoords.lat},${currentCoords.lng}&destination=${destination.lat},${destination.lng}&api_key=${import.meta.env.VITE_OLA_MAP_API_KEY}`;
@@ -107,8 +74,6 @@ function UserFinalRide({ isFullHeight, setIsFullHeight, ride, user }) {
                 setRouteData(newRouteData);
                 setDistanceToPickup(totalDistance);
                 setEstimatedTime(totalTime);
-
-                // Set the current navigation step
                 if (newRouteData && newRouteData.length > 0) {
                   setCurrentStep(newRouteData[0]);
                 }
@@ -131,8 +96,6 @@ function UserFinalRide({ isFullHeight, setIsFullHeight, ride, user }) {
 
     return () => clearInterval(intervalId);
   }, [ride, navigationStopped, user]);
-
-  // Update polyline for map component
   useEffect(() => {
     if (polyline) {
       window.dispatchEvent(new CustomEvent('polylineUpdated', { detail: polyline }));

@@ -39,6 +39,7 @@ function UserRide({ status = null, details = null}) {
   }, []);
 
   const user = useSelector((state) => state.auth.userdata);
+  console.log(user);
   const isConnected = useSelector((state) => state.socket.connected);
 
   // Sync ride state with Redux store

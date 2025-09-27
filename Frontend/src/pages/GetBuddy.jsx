@@ -9,6 +9,7 @@ import { setConnected } from '../Store/SocketSlice.jsx';
 import { store } from '../Store/Store.jsx';
 import Selectbuddy from '../components/selectbuddy.jsx';
 import { useRef } from "react";
+import logo from '../picture/logo.png';
 
 function GetBuddy() {
   const navigate = useNavigate();
@@ -412,6 +413,13 @@ function GetBuddy() {
         >
           ✨ New Feature
         </motion.span>
+      <h2
+        onClick={()=>(
+          navigate('/user-profile')
+        )}
+      className='w-15 h-15 absolute right-3 top-3 z-20'>
+        <i className="ri-account-circle-2-line text-5xl"></i>
+      </h2>
         <h1 className="text-2xl font-extrabold">Find Your Travel Buddy</h1>
         <p className="text-sm opacity-90">Share rides, save money, and make new friends 🚗</p>
       </motion.div>
