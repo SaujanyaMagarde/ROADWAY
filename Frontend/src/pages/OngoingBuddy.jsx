@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { socket } from "../Store/SocketSlice.jsx";
 import { useSelector, useDispatch } from "react-redux";
 import { initializeSocket } from "../Store/SocketSlice.jsx";
-import WaitForBuddy from "../components/waitforbuddy.jsx";
+import WaitForBuddy from "../components/waitForbuddy.jsx";
 import ConformBuddy from "../components/ConformBuddy.jsx";
 import LookingforDriver from "../components/lookingforshareddriver.jsx";
 import BuddyPickup from "../components/BuddyPickup.jsx";
