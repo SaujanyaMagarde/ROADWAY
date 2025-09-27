@@ -7,9 +7,7 @@ import { useSelector,useDispatch } from 'react-redux';
 import { initializeSocket } from '../Store/SocketSlice.jsx';
 import { setConnected } from '../Store/SocketSlice.jsx';
 import { store } from '../Store/Store.jsx';
-import Selectbuddy from '../components/selectbuddy.jsx';
-import { useRef } from "react";
-import logo from '../picture/logo.png';
+import Selectbuddy from '../components/Selectbuddy.jsx';
 
 function GetBuddy() {
   const navigate = useNavigate();
