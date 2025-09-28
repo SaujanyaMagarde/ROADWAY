@@ -6,10 +6,17 @@ import http from 'http'
 const app = express()
 const server = http.createServer(app);
 
+const allowedOrigins = ['http://localhost:5173', 'roadway-885y.vercel.app'];
+
 app.use(cors({
-    origin: 'http://localhost:5173',
-    origin: 'roadway-885y.vercel.app',
-    credentials: true,
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true
 }));
 
 app.use(express.json({limit:"16kb"}))
