@@ -16,44 +16,31 @@ import OnGoingCaptain from './pages/onGoingCaptain.jsx'
 import GetBuddy from './pages/GetBuddy.jsx'
 import OngoingBuddy from './pages/OngoingBuddy.jsx'
 import InfoBuddy from './pages/InfoBuddy.jsx'
-
+import './index.css'
 function App() {
-  const [is_mobile, set_is_mobile] = useState(true)
-
-  useEffect(() => {
-    if (window.innerWidth > 768) {
-      set_is_mobile(false)
-    }
-  }, [])
-
-  if (!is_mobile) {
-    return (
-      <h2 style={{ textAlign: 'center', marginTop: '50px' }}>
-        This website is only available on mobile devices.
-      </h2>
-    )
-  }
-
   return (
-    <div>
-      <Routes>
-        <Route path='/' element={<Start />} />
-        <Route path='/user-login' element={<UserLogin />} />
-        <Route path='/user-profile' element={<UserProtectecdWrapper><UserProfile /></UserProtectecdWrapper>} />
-        <Route path='/user-signup' element={<UserSignup />} />
-        <Route path='/captain-login' element={<CaptainLogin />} />
-        <Route path='/captain-signup' element={<CaptainSignup />} />
-        <Route path='/user-home' element={<UserProtectecdWrapper><Home /></UserProtectecdWrapper>} />
-        <Route path='/captain-home' element={<CaptainProtectecdWrapper><CaptainHome /></CaptainProtectecdWrapper>} />
-        <Route path='/captain-profile' element={<CaptainProtectecdWrapper><CaptainProfilePage /></CaptainProtectecdWrapper>} />
-        <Route path='/user-ongoing-rides' element={<UserProtectecdWrapper><OnGoing /></UserProtectecdWrapper>} />
-        <Route path='/captain-ongoing-rides' element={<CaptainProtectecdWrapper><OnGoingCaptain /></CaptainProtectecdWrapper>} />
-        <Route path='/user-find-buddy' element={<UserProtectecdWrapper><GetBuddy /></UserProtectecdWrapper>} />
-        <Route path='/ongoing-for-buddy' element={<UserProtectecdWrapper><OngoingBuddy /></UserProtectecdWrapper>} />
-        <Route path='/info-buddy' element={<UserProtectecdWrapper><InfoBuddy /></UserProtectecdWrapper>} />
-      </Routes>
+    <div className="app-wrapper">
+      <div className="app-container">
+        <Routes>
+          <Route path='/' element={<Start />} />
+          <Route path='/user-login' element={<UserLogin />} />
+          <Route path='/user-profile' element={<UserProtectecdWrapper><UserProfile /></UserProtectecdWrapper>} />
+          <Route path='/user-signup' element={<UserSignup />} />
+          <Route path='/captain-login' element={<CaptainLogin />} />
+          <Route path='/captain-signup' element={<CaptainSignup />} />
+          <Route path='/user-home' element={<UserProtectecdWrapper><Home /></UserProtectecdWrapper>} />
+          <Route path='/captain-home' element={<CaptainProtectecdWrapper><CaptainHome /></CaptainProtectecdWrapper>} />
+          <Route path='/captain-profile' element={<CaptainProtectecdWrapper><CaptainProfilePage /></CaptainProtectecdWrapper>} />
+          <Route path='/user-ongoing-rides' element={<UserProtectecdWrapper><OnGoing /></UserProtectecdWrapper>} />
+          <Route path='/captain-ongoing-rides' element={<CaptainProtectecdWrapper><OnGoingCaptain /></CaptainProtectecdWrapper>} />
+          <Route path='/user-find-buddy' element={<UserProtectecdWrapper><GetBuddy /></UserProtectecdWrapper>} />
+          <Route path='/ongoing-for-buddy' element={<UserProtectecdWrapper><OngoingBuddy /></UserProtectecdWrapper>} />
+          <Route path='/info-buddy' element={<UserProtectecdWrapper><InfoBuddy /></UserProtectecdWrapper>} />
+        </Routes>
+      </div>
     </div>
   )
 }
+
 
 export default App
