@@ -8,6 +8,7 @@ const server = http.createServer(app);
 
 app.use(cors({
     origin: 'http://localhost:5173',
+    origin: 'roadway-885y.vercel.app',
     credentials: true,
 }));
 
