@@ -6,7 +6,7 @@ import http from 'http'
 const app = express()
 const server = http.createServer(app);
 
-const allowedOrigins = ['http://localhost:5173', 'roadway-885y.vercel.app'];
+const allowedOrigins = ['http://localhost:5173', 'https://roadway-885y.vercel.app'];
 
 app.use(cors({
     origin: function (origin, callback) {
