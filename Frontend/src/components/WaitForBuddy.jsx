@@ -1,5 +1,4 @@
 import React from "react";
-import { motion } from "framer-motion";
 import { Loader2, MapPin, Clock, IndianRupee, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
